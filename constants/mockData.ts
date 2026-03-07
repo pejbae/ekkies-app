@@ -108,6 +108,76 @@ export const MOCK_USER = {
   currency: 'kr',
 };
 
+// ── Stressed account: Alex ──────────────────────────────────────────────────
+// No salary yet this month, budgets blown across Food / Shopping / Fun.
+
+export const MOCK_USER_STRESSED = {
+  name: 'Alex',
+  payday: 25,
+  monthlyIncome: 26000,
+  currency: 'kr',
+};
+
+export const MOCK_BUDGETS_STRESSED: Partial<Record<Category, number>> = {
+  mat: 3500,
+  transport: 1200,
+  noje: 1500,
+  halsa: 400,
+  shopping: 1500,
+  prenumerationer: 600,
+  hem: 7000,
+};
+
+const ds = (daysAgo: number) => new Date(Date.now() - daysAgo * 86400000).toISOString();
+
+export const MOCK_TRANSACTIONS_STRESSED: Transaction[] = [
+  { id: 's1',  merchant: 'Hemköp',            amount: -643,  category: 'mat',             date: ds(0),  confirmed: false, emoji: '🛒' },
+  { id: 's2',  merchant: 'Espresso House',     amount: -79,   category: 'mat',             date: ds(0),  confirmed: false, emoji: '☕' },
+  { id: 's3',  merchant: 'Bolt',               amount: -189,  category: 'transport',       date: ds(1),  confirmed: true,  emoji: '🚗' },
+  { id: 's4',  merchant: 'Asos',               amount: -1299, category: 'shopping',        date: ds(1),  confirmed: true,  emoji: '🛍️' },
+  { id: 's5',  merchant: 'Foodora',            amount: -349,  category: 'mat',             date: ds(2),  confirmed: true,  emoji: '🍕' },
+  { id: 's6',  merchant: 'Baren',              amount: -680,  category: 'noje',            date: ds(2),  confirmed: true,  emoji: '🍺' },
+  { id: 's7',  merchant: 'ZARA',               amount: -899,  category: 'shopping',        date: ds(3),  confirmed: true,  emoji: '🛍️' },
+  { id: 's8',  merchant: 'ICA',                amount: -512,  category: 'mat',             date: ds(3),  confirmed: true,  emoji: '🛒' },
+  { id: 's9',  merchant: 'Spotify',            amount: -119,  category: 'prenumerationer', date: ds(4),  confirmed: true,  emoji: '🎵' },
+  { id: 's10', merchant: 'Systembolaget',       amount: -487,  category: 'noje',            date: ds(4),  confirmed: true,  emoji: '🍷' },
+  { id: 's11', merchant: 'SL Månadskort',      amount: -990,  category: 'transport',       date: ds(5),  confirmed: true,  emoji: '🚇' },
+  { id: 's12', merchant: "McDonald's",         amount: -189,  category: 'mat',             date: ds(5),  confirmed: true,  emoji: '🍔' },
+  { id: 's13', merchant: 'Netflix',            amount: -139,  category: 'prenumerationer', date: ds(6),  confirmed: true,  emoji: '📺' },
+  { id: 's14', merchant: 'H&M',                amount: -749,  category: 'shopping',        date: ds(6),  confirmed: true,  emoji: '👕' },
+  { id: 's15', merchant: 'Uber Eats',          amount: -412,  category: 'mat',             date: ds(7),  confirmed: true,  emoji: '🍜' },
+  { id: 's16', merchant: 'Biljard & Bar',      amount: -380,  category: 'noje',            date: ds(7),  confirmed: true,  emoji: '🎱' },
+  { id: 's17', merchant: 'Apoteket',           amount: -245,  category: 'halsa',           date: ds(8),  confirmed: true,  emoji: '💊' },
+  { id: 's18', merchant: 'Coop',               amount: -567,  category: 'mat',             date: ds(8),  confirmed: true,  emoji: '🛒' },
+  { id: 's19', merchant: 'Stadium',            amount: -849,  category: 'shopping',        date: ds(9),  confirmed: true,  emoji: '👟' },
+  { id: 's20', merchant: 'HBO Max',            amount: -119,  category: 'prenumerationer', date: ds(9),  confirmed: true,  emoji: '📺' },
+  { id: 's21', merchant: 'Willys',             amount: -489,  category: 'mat',             date: ds(10), confirmed: true,  emoji: '🛒' },
+  { id: 's22', merchant: 'Nattklubb',          amount: -850,  category: 'noje',            date: ds(10), confirmed: true,  emoji: '🎉' },
+  { id: 's23', merchant: 'Swish - Hyra',       amount: -7200, category: 'hem',             date: ds(11), confirmed: true,  emoji: '🏠' },
+  { id: 's24', merchant: 'Kicks',              amount: -399,  category: 'halsa',           date: ds(11), confirmed: true,  emoji: '💅' },
+  { id: 's25', merchant: 'Åhléns',             amount: -599,  category: 'shopping',        date: ds(12), confirmed: true,  emoji: '🛍️' },
+  { id: 's26', merchant: 'Pressbyrån',         amount: -89,   category: 'mat',             date: ds(12), confirmed: true,  emoji: '🥐' },
+  { id: 's27', merchant: 'Apple Music',        amount: -99,   category: 'prenumerationer', date: ds(13), confirmed: true,  emoji: '🎵' },
+  { id: 's28', merchant: 'Sushi Place',        amount: -439,  category: 'mat',             date: ds(13), confirmed: true,  emoji: '🍣' },
+];
+
+export type AccountKey = 'pej' | 'alex';
+
+export function getMockData(account: AccountKey) {
+  if (account === 'alex') {
+    return {
+      user: MOCK_USER_STRESSED,
+      transactions: MOCK_TRANSACTIONS_STRESSED,
+      budgets: MOCK_BUDGETS_STRESSED,
+    };
+  }
+  return {
+    user: MOCK_USER,
+    transactions: MOCK_TRANSACTIONS,
+    budgets: MOCK_BUDGETS,
+  };
+}
+
 // Helpers
 
 export const getTodaySpending = (transactions: Transaction[]): number => {

@@ -44,24 +44,25 @@
     "today_strip": "Today · {{amount}} kr · {{count}} purchases",
     "budget_section": "Budgets",
     "budget_used": "{{pct}}% of budget used",
-    "see_all_budget": "See all",
-    "recent": "Recent",
-    "see_all": "See all",
     "no_budgets": "No budgets set yet",
-    "roundup_title": "Sparrunda — Round-up savings",
-    "roundup_body": "Round up each purchase to the nearest 50 kr and you could save {{weekly}} kr this week — {{monthly}} kr this month.",
-    "roundup_cta": "How does it work?",
-    "roundup_explanation": "Every time you spend money, the difference between what you paid and the next 50 kr goes into savings. E.g. a 43 kr coffee → you'd save 7 kr. Small amounts, big results over time. For now, do it manually — automatic round-ups are coming soon.",
+    "sparrunda_banner": "Round up this week's purchases → +{{amount}} kr potential savings",
+    "sparrunda_inline": "✦ Rounding up this week's purchases = +{{amount}} kr",
     "manage": "Manage →",
     "see_all": "See all →",
-    "see_details": "Details →"
+    "see_details": "Details →",
+    "payday_countdown_label": "days until payday",
+    "payday_countdown_one": "{{count}} day until payday",
+    "payday_on": "Payday on the {{day}}th",
+    "month_progress": "{{pct}}% of month used"
   },
   "widgets": {
     "safe_to_spend": "Safe to Spend",
+    "payday_countdown": "Payday",
     "sparrunda": "Sparrunda",
     "budget": "Budget",
     "recent": "Recent",
-    "month_health": "Month health",
+    "month_health": "Spending",
+    "spending": "Spending",
     "subscriptions": "Subscriptions",
     "customize_title": "Home widgets",
     "customize_subtitle": "Choose what appears on your home screen"
@@ -91,7 +92,9 @@
     "wizard_last_month": "Last month: {{amount}} kr",
     "wizard_suggested": "+10% buffer → {{amount}} kr",
     "wizard_allocated": "Allocated: {{allocated}} / {{total}} kr",
-    "wizard_over": "Over budget — reduce some amounts"
+    "wizard_over": "Over budget — reduce some amounts",
+    "pin_categories": "Pin categories",
+    "pin_subtitle": "Choose which budgets appear on your home screen"
   },
   "transactions": {
     "title": "Money",
@@ -100,7 +103,6 @@
     "monthly_summary_one": "This month · {{amount}} kr across {{count}} transaction",
     "monthly_summary_other": "This month · {{amount}} kr across {{count}} transactions",
     "daily_total": "{{amount}} kr",
-    "roundup_day": "Round-up: +{{amount}} kr",
     "sparrunda_week": "This week: +{{amount}} kr",
     "sparrunda_month": "This month: +{{amount}} kr",
     "sparrunda_how": "How does it work?"
@@ -139,7 +141,8 @@
     "no_budgets_cta": "Set a budget",
     "roundup_title": "Sparrunda — savings potential",
     "roundup_detail": "This month you could have saved {{amount}} kr by rounding up each purchase to the nearest 50 kr. That's {{monthly}} kr projected for the year.",
-    "roundup_coming": "Automatic round-ups — coming soon."
+    "roundup_coming": "Automatic round-ups — coming soon.",
+    "over_label": "OVER"
   },
   "profile": {
     "title": "Me",
@@ -149,8 +152,12 @@
     "money_in": "↓ {{amount}} kr",
     "money_out": "↑ {{amount}} kr",
     "balance_left": "{{amount}} kr left",
+    "balance_stat_label": "left",
     "customize_section": "Home widgets",
-    "settings_section": "Settings"
+    "settings_section": "Settings",
+    "account_section": "Demo account",
+    "account_pej": "Pej — healthy",
+    "account_alex": "Alex — over budget"
   },
   "settings": {
     "title": "Settings",

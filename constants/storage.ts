@@ -9,6 +9,8 @@ const KEYS = {
   BANK_CONNECTED: 'ekkies_bank_connected',
   BUDGETS: 'ekkies_budgets',
   WIDGET_ORDER: 'ekkies_widget_order',
+  ACTIVE_ACCOUNT: 'ekkies_active_account',
+  PINNED_BUDGET_CATS: 'ekkies_pinned_budget_cats',
 };
 
 const SECURE_KEYS = {
@@ -97,6 +99,31 @@ export async function getWidgetOrder(): Promise<string[] | null> {
 
 export async function saveWidgetOrder(order: string[]): Promise<void> {
   await AsyncStorage.setItem(KEYS.WIDGET_ORDER, JSON.stringify(order));
+}
+
+// Active account
+
+export type ActiveAccount = 'pej' | 'alex';
+
+export async function getActiveAccount(): Promise<ActiveAccount> {
+  const v = await AsyncStorage.getItem(KEYS.ACTIVE_ACCOUNT);
+  return v === 'alex' ? 'alex' : 'pej';
+}
+
+export async function saveActiveAccount(account: ActiveAccount): Promise<void> {
+  await AsyncStorage.setItem(KEYS.ACTIVE_ACCOUNT, account);
+}
+
+// Pinned budget categories
+
+export async function getPinnedBudgetCategories(): Promise<string[] | null> {
+  const v = await AsyncStorage.getItem(KEYS.PINNED_BUDGET_CATS);
+  if (!v) return null;
+  try { return JSON.parse(v); } catch { return null; }
+}
+
+export async function savePinnedBudgetCategories(cats: string[]): Promise<void> {
+  await AsyncStorage.setItem(KEYS.PINNED_BUDGET_CATS, JSON.stringify(cats));
 }
 
 // Tink tokens (secure)

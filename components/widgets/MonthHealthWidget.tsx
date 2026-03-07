@@ -1,174 +1,165 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
-import { Colors, Typography, Spacing, Radius, Shadow } from '@/constants/theme';
+import { Colors, Typography, Spacing, Radius } from '@/constants/theme';
 import {
-  MOCK_TRANSACTIONS, MOCK_USER, CATEGORY_COLORS,
-  getMonthSpendingByCategory, getBalanceUntilPayday, getDaysUntilPayday,
+  getMockData, CATEGORY_COLORS, Category,
+  getMonthSpendingByCategory,
 } from '@/constants/mockData';
 import { useTranslation } from 'react-i18next';
 import { useApp } from '@/context/AppContext';
-import RingChart from '@/components/charts/RingChart';
 import WidgetShell from './WidgetShell';
+import { useNumberLocale } from '@/utils/locale';
 
-const DISCRETIONARY = ['mat', 'transport', 'noje', 'shopping', 'prenumerationer', 'halsa'] as const;
+const CATEGORIES: Category[] = ['mat', 'transport', 'noje', 'halsa', 'shopping', 'prenumerationer'];
 
 export default function MonthHealthWidget() {
   const { t } = useTranslation();
-  const { payday, budgets } = useApp();
+  const { budgets, activeAccount } = useApp();
+  const locale = useNumberLocale();
 
-  const effectivePayday = payday ?? MOCK_USER.payday;
-  const byCategory = getMonthSpendingByCategory(MOCK_TRANSACTIONS);
-  const balance = getBalanceUntilPayday(MOCK_TRANSACTIONS, MOCK_USER.monthlyIncome);
-  const daysUntil = getDaysUntilPayday(effectivePayday);
+  const { transactions } = getMockData(activeAccount);
+  const byCategory = getMonthSpendingByCategory(transactions);
 
-  const totalSpent = DISCRETIONARY.reduce((sum, cat) => sum + (byCategory[cat] ?? 0), 0);
-  const totalBudget = DISCRETIONARY.reduce((sum, cat) => sum + (budgets[cat] ?? 0), 0);
-  const budgetUsedPct = totalBudget > 0 ? (totalSpent / totalBudget) * 100 : null;
+  const totalSpent = CATEGORIES.reduce((sum, cat) => sum + (byCategory[cat] ?? 0), 0);
+  const totalBudget = CATEGORIES.reduce((sum, cat) => sum + (budgets[cat] ?? 0), 0);
 
-  const healthState =
-    budgetUsedPct == null ? 'no_budget'
-    : budgetUsedPct >= 100 ? 'over'
-    : budgetUsedPct >= 70  ? 'tight'
-    : 'ok';
-
-  const bgColor =
-    healthState === 'over'       ? Colors.dangerSoft
-    : healthState === 'tight'   ? Colors.warningSoft
-    : healthState === 'no_budget' ? Colors.surface
-    : Colors.positiveSoft;
-
-  const accentColor =
-    healthState === 'over'    ? Colors.danger
-    : healthState === 'tight' ? Colors.warning
-    : Colors.positive;
-
-  const healthTitle =
-    healthState === 'over'    ? t('insights.health_over')
-    : healthState === 'tight' ? t('insights.health_watch_out')
-    : t('insights.health_on_track');
-
-  const ringSegments = budgetUsedPct != null
-    ? [
-        { value: Math.min(budgetUsedPct, 100), color: accentColor },
-        { value: Math.max(100 - budgetUsedPct, 0), color: accentColor + '30' },
-      ]
-    : DISCRETIONARY
-        .filter((cat) => (byCategory[cat] ?? 0) > 0)
-        .map((cat) => ({ value: byCategory[cat] ?? 0, color: CATEGORY_COLORS[cat] }));
-
-  const topCategories = DISCRETIONARY
-    .map((cat) => ({ cat, spent: byCategory[cat] ?? 0 }))
-    .filter((r) => r.spent > 0)
-    .sort((a, b) => b.spent - a.spent)
-    .slice(0, 3);
-
-  const maxSpent = topCategories[0]?.spent ?? 1;
+  // For bar widths: if budgets set use spent/budget; else scale relative to max
+  const maxSpent = Math.max(...CATEGORIES.map((c) => byCategory[c] ?? 0), 1);
+  const hasBudgets = totalBudget > 0;
 
   return (
     <WidgetShell
-      title={t('widgets.month_health')}
+      title={t('widgets.spending')}
       actionLabel={t('home.see_details')}
       onAction={() => router.push('/tabs/insights')}
-      bgColor={bgColor}
     >
-      <View style={styles.row}>
-        <View style={styles.left}>
-          <Text style={[styles.state, { color: accentColor }]}>{healthTitle}</Text>
-          <Text style={styles.balance}>{balance.toLocaleString('sv-SE')} kr</Text>
-          <Text style={styles.sub}>
-            {daysUntil} {t('insights.days_left')}
-          </Text>
-        </View>
-        <RingChart
-          segments={ringSegments.length > 0 ? ringSegments : [{ value: 1, color: Colors.surface2 }]}
-          size={72}
-          strokeWidth={8}
-          centerLabel={budgetUsedPct != null ? `${Math.round(budgetUsedPct)}%` : '?'}
-          centerColor={accentColor}
-          trackColor="transparent"
-        />
+      <View style={styles.rows}>
+        {CATEGORIES.map((cat) => {
+          const spent = byCategory[cat] ?? 0;
+          const budget = budgets[cat] ?? 0;
+          const isOver = hasBudgets && budget > 0 && spent > budget;
+
+          let barPct: number;
+          if (hasBudgets && budget > 0) {
+            barPct = Math.min((spent / budget) * 100, 100);
+          } else {
+            barPct = (spent / maxSpent) * 100;
+          }
+
+          const barColor = isOver ? Colors.danger : CATEGORY_COLORS[cat];
+
+          return (
+            <View key={cat} style={styles.catRow}>
+              <View style={[styles.dot, { backgroundColor: CATEGORY_COLORS[cat] }]} />
+              <Text style={styles.catLabel} numberOfLines={1}>
+                {t(`categories.${cat}`)}
+              </Text>
+              <View style={styles.barTrack}>
+                <View style={[styles.barFill, { width: `${barPct}%`, backgroundColor: barColor }]} />
+              </View>
+              <View style={styles.amountGroup}>
+                <Text style={[styles.catSpent, isOver && styles.catSpentOver]}>
+                  {spent.toLocaleString(locale)}
+                </Text>
+                {hasBudgets && budget > 0 && (
+                  <Text style={styles.catBudget}>/{budget.toLocaleString(locale)}</Text>
+                )}
+              </View>
+              {isOver && (
+                <Text style={styles.overBadge}>{t('insights.over_label')}</Text>
+              )}
+            </View>
+          );
+        })}
       </View>
 
-      {topCategories.length > 0 && (
-        <View style={styles.bars}>
-          {topCategories.map((r) => {
-            const pct = Math.round((r.spent / maxSpent) * 100);
-            return (
-              <View key={r.cat} style={styles.barRow}>
-                <View style={[styles.dot, { backgroundColor: CATEGORY_COLORS[r.cat] }]} />
-                <Text style={styles.barLabel}>{t(`categories.${r.cat}`)}</Text>
-                <View style={styles.barTrack}>
-                  <View style={[styles.barFill, { width: `${pct}%`, backgroundColor: CATEGORY_COLORS[r.cat] }]} />
-                </View>
-                <Text style={styles.barAmount}>{r.spent.toLocaleString('sv-SE')}</Text>
-              </View>
-            );
-          })}
-        </View>
-      )}
+      <View style={styles.totalRow}>
+        <Text style={styles.totalLabel}>{t('insights.spending_title')}</Text>
+        <Text style={styles.totalAmount}>
+          {totalSpent.toLocaleString(locale)}
+          {hasBudgets ? ` / ${totalBudget.toLocaleString(locale)} kr` : ' kr'}
+        </Text>
+      </View>
     </WidgetShell>
   );
 }
 
 const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  rows: {
+    gap: 10,
   },
-  left: { flex: 1, gap: 4 },
-  state: {
-    fontFamily: Typography.semibold,
-    fontSize: 11,
-    letterSpacing: 0.5,
-    textTransform: 'uppercase',
-  },
-  balance: {
-    fontFamily: Typography.display,
-    fontSize: 28,
-    color: Colors.text,
-    letterSpacing: -1,
-    lineHeight: 32,
-  },
-  sub: {
-    fontFamily: Typography.regular,
-    fontSize: 12,
-    color: Colors.muted,
-  },
-  bars: { gap: 8 },
-  barRow: {
+  catRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
   },
   dot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
     flexShrink: 0,
   },
-  barLabel: {
+  catLabel: {
     fontFamily: Typography.regular,
     fontSize: 12,
     color: Colors.muted,
-    width: 48,
+    width: 56,
   },
   barTrack: {
     flex: 1,
-    height: 4,
+    height: 6,
     backgroundColor: Colors.surface2,
-    borderRadius: 2,
+    borderRadius: 3,
     overflow: 'hidden',
   },
   barFill: {
-    height: 4,
-    borderRadius: 2,
+    height: 6,
+    borderRadius: 3,
   },
-  barAmount: {
+  amountGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 1,
+    flexShrink: 0,
+  },
+  catSpent: {
     fontFamily: Typography.medium,
     fontSize: 11,
-    color: Colors.muted,
-    width: 44,
+    color: Colors.text,
     textAlign: 'right',
+  },
+  catSpentOver: {
+    color: Colors.danger,
+  },
+  catBudget: {
+    fontFamily: Typography.regular,
+    fontSize: 10,
+    color: Colors.subtle,
+  },
+  overBadge: {
+    fontFamily: Typography.bold,
+    fontSize: 9,
+    color: Colors.danger,
+    letterSpacing: 0.3,
+    flexShrink: 0,
+  },
+  totalRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+    paddingTop: Spacing.sm,
+    marginTop: Spacing.xs,
+  },
+  totalLabel: {
+    fontFamily: Typography.semibold,
+    fontSize: 12,
+    color: Colors.muted,
+  },
+  totalAmount: {
+    fontFamily: Typography.bold,
+    fontSize: 13,
+    color: Colors.text,
   },
 });

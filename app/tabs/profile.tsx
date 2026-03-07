@@ -3,21 +3,32 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors, Typography, Spacing, Radius, Shadow } from '@/constants/theme';
 import { useTranslation } from 'react-i18next';
 import { useApp } from '@/context/AppContext';
-import { Language } from '@/constants/storage';
+import { Language, ActiveAccount } from '@/constants/storage';
 import {
-  MOCK_USER, MOCK_TRANSACTIONS,
+  getMockData,
   getMonthSpendingByCategory, getBalanceUntilPayday,
 } from '@/constants/mockData';
 import { WIDGET_META, DEFAULT_WIDGET_ORDER, WidgetId } from '@/constants/widgets';
+import { useNumberLocale } from '@/utils/locale';
 
 const DISCRETIONARY = ['mat', 'transport', 'noje', 'halsa', 'shopping', 'prenumerationer'] as const;
 
 export default function Profile() {
   const { t } = useTranslation();
-  const { language, setLanguage, payday, bankConnected, widgetOrder, setWidgetOrder } = useApp();
+  const {
+    language, setLanguage, payday, bankConnected, widgetOrder, setWidgetOrder,
+    activeAccount, setActiveAccount,
+  } = useApp();
+  const locale = useNumberLocale();
+
+  const { user, transactions } = getMockData(activeAccount);
 
   const handleLanguage = async (lang: Language) => {
     if (lang !== language) await setLanguage(lang);
+  };
+
+  const handleAccount = async (account: ActiveAccount) => {
+    if (account !== activeAccount) await setActiveAccount(account);
   };
 
   const toggleWidget = async (id: WidgetId) => {
@@ -32,10 +43,10 @@ export default function Profile() {
     }
   };
 
-  const byCategory = getMonthSpendingByCategory(MOCK_TRANSACTIONS);
+  const byCategory = getMonthSpendingByCategory(transactions);
   const totalSpent = DISCRETIONARY.reduce((sum, cat) => sum + (byCategory[cat] ?? 0), 0);
-  const income = MOCK_USER.monthlyIncome;
-  const balance = getBalanceUntilPayday(MOCK_TRANSACTIONS, income);
+  const income = user.monthlyIncome;
+  const balance = getBalanceUntilPayday(transactions, income);
   const trackingDays = 14;
 
   return (
@@ -45,29 +56,29 @@ export default function Profile() {
         {/* ── Identity + snapshot ── */}
         <View style={styles.hero}>
           <View style={styles.avatarWrap}>
-            <Text style={styles.avatarText}>{MOCK_USER.name[0].toUpperCase()}</Text>
+            <Text style={styles.avatarText}>{user.name[0].toUpperCase()}</Text>
           </View>
-          <Text style={styles.heroName}>{MOCK_USER.name}</Text>
+          <Text style={styles.heroName}>{user.name}</Text>
           <Text style={styles.heroStreak}>{t('profile.streak', { count: trackingDays })}</Text>
 
           <View style={styles.statRow}>
             <View style={[styles.stat, { backgroundColor: Colors.positiveSoft }]}>
               <Text style={[styles.statValue, { color: Colors.positive }]}>
-                ↓ {income.toLocaleString('sv-SE')} kr
+                ↓ {income.toLocaleString(locale)} kr
               </Text>
               <Text style={styles.statLabel}>{t('settings.payday_section')}</Text>
             </View>
             <View style={[styles.stat, { backgroundColor: Colors.surface }]}>
               <Text style={[styles.statValue, { color: Colors.text }]}>
-                ↑ {totalSpent.toLocaleString('sv-SE')} kr
+                ↑ {totalSpent.toLocaleString(locale)} kr
               </Text>
               <Text style={styles.statLabel}>{t('insights.spending_title')}</Text>
             </View>
             <View style={[styles.stat, { backgroundColor: Colors.accentSoft }]}>
               <Text style={[styles.statValue, { color: Colors.accent }]}>
-                {balance.toLocaleString('sv-SE')} kr
+                {balance.toLocaleString(locale)} kr
               </Text>
-              <Text style={styles.statLabel}>kvar</Text>
+              <Text style={styles.statLabel}>{t('profile.balance_stat_label')}</Text>
             </View>
           </View>
         </View>
@@ -104,6 +115,27 @@ export default function Profile() {
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>{t('profile.settings_section')}</Text>
           <View style={[styles.card, Shadow.card]}>
+
+            {/* Demo account switcher */}
+            <View style={[styles.settingsRow, styles.rowBorder]}>
+              <Text style={styles.settingsIcon}>👤</Text>
+              <Text style={styles.settingsLabel}>{t('profile.account_section')}</Text>
+              <View style={styles.langToggle}>
+                {(['pej', 'alex'] as ActiveAccount[]).map((account) => (
+                  <TouchableOpacity
+                    key={account}
+                    style={[styles.langBtn, activeAccount === account && styles.langBtnActive]}
+                    onPress={() => handleAccount(account)}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={[styles.langBtnText, activeAccount === account && styles.langBtnTextActive]}>
+                      {account === 'pej' ? 'Pej' : 'Alex'}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
             {/* Language */}
             <View style={[styles.settingsRow, styles.rowBorder]}>
               <Text style={styles.settingsIcon}>🌐</Text>

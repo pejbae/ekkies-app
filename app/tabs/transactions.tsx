@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, FlatList, ScrollView, TouchableOpacity } from '
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors, Typography, Spacing, Radius } from '@/constants/theme';
 import {
-  MOCK_TRANSACTIONS,
+  getMockData,
   CATEGORY_COLORS,
   getCategoryLabel,
   Transaction,
@@ -11,26 +11,27 @@ import {
   getRoundUpSavings,
 } from '@/constants/mockData';
 import { useTranslation } from 'react-i18next';
+import { useApp } from '@/context/AppContext';
+import { useNumberLocale } from '@/utils/locale';
 
 const FILTER_CATEGORIES: (Category | 'all')[] = [
   'all', 'mat', 'transport', 'noje', 'halsa', 'shopping', 'prenumerationer',
 ];
 
 export default function Transactions() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
+  const { activeAccount } = useApp();
+  const locale = useNumberLocale();
   const [activeFilter, setActiveFilter] = useState<Category | 'all'>('all');
-  const [sparrundaExpanded, setSparrundaExpanded] = useState(false);
 
-  const locale = i18n.language === 'sv' ? 'sv-SE' : 'en-GB';
+  const { transactions } = getMockData(activeAccount);
 
-  const spending = MOCK_TRANSACTIONS.filter(
+  const spending = transactions.filter(
     (tx) => tx.amount < 0 && (activeFilter === 'all' || tx.category === activeFilter)
   );
 
   const monthlyTotal = spending.reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
-
-  const weeklyRoundup = Math.round(getRoundUpSavings(MOCK_TRANSACTIONS, 7));
-  const monthlyRoundup = Math.round(weeklyRoundup * 4.3);
+  const weeklyRoundup = Math.round(getRoundUpSavings(transactions, 7));
 
   const grouped: { date: string; rawDate: string; items: Transaction[] }[] = [];
   spending.forEach((tx) => {
@@ -56,38 +57,17 @@ export default function Transactions() {
         <Text style={styles.summaryText}>
           {t('transactions.monthly_summary', {
             count: spending.length,
-            amount: monthlyTotal.toLocaleString('sv-SE'),
+            amount: monthlyTotal.toLocaleString(locale),
           })}
         </Text>
       </View>
 
-      {/* Sparrunda summary card */}
+      {/* Sparrunda one-liner */}
       {weeklyRoundup > 0 && (
-        <View style={styles.sparrundaCard}>
-          <View style={styles.sparrundaMain}>
-            <Text style={styles.sparrundaBadge}>✦</Text>
-            <View style={styles.sparrundaNumbers}>
-              <Text style={styles.sparrundaTitle}>Sparrunda</Text>
-              <Text style={styles.sparrundaLine}>
-                {t('transactions.sparrunda_week', { amount: weeklyRoundup.toLocaleString('sv-SE') })}
-                {'  ·  '}
-                {t('transactions.sparrunda_month', { amount: monthlyRoundup.toLocaleString('sv-SE') })}
-              </Text>
-            </View>
-            <TouchableOpacity
-              onPress={() => setSparrundaExpanded((v) => !v)}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            >
-              <Text style={styles.sparrundaHelp}>
-                {sparrundaExpanded ? '↑' : '?'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-          {sparrundaExpanded && (
-            <Text style={styles.sparrundaExplanation}>
-              {t('home.roundup_explanation')}
-            </Text>
-          )}
+        <View style={styles.sparrundaLine}>
+          <Text style={styles.sparrundaText}>
+            {t('home.sparrunda_inline', { amount: weeklyRoundup.toLocaleString(locale) })}
+          </Text>
         </View>
       )}
 
@@ -105,9 +85,6 @@ export default function Transactions() {
             onPress={() => setActiveFilter(cat)}
             activeOpacity={0.75}
           >
-            {cat !== 'all' && (
-              <View style={[styles.filterDot, { backgroundColor: activeFilter === cat ? Colors.white : CATEGORY_COLORS[cat as Category] }]} />
-            )}
             <Text style={[styles.filterPillText, activeFilter === cat && styles.filterPillTextActive]}>
               {cat === 'all' ? t('transactions.filter_all') : getCategoryLabel(cat, t)}
             </Text>
@@ -130,11 +107,11 @@ export default function Transactions() {
               <View style={styles.groupHeader}>
                 <Text style={styles.groupDate}>{group.date}</Text>
                 <Text style={styles.groupTotal}>
-                  -{t('transactions.daily_total', { amount: dailyTotal.toLocaleString('sv-SE') })}
+                  -{t('transactions.daily_total', { amount: dailyTotal.toLocaleString(locale) })}
                 </Text>
               </View>
               {group.items.map((tx) => (
-                <TransactionRow key={tx.id} transaction={tx} />
+                <TransactionRow key={tx.id} transaction={tx} locale={locale} />
               ))}
             </View>
           );
@@ -144,7 +121,7 @@ export default function Transactions() {
   );
 }
 
-function TransactionRow({ transaction: tx }: { transaction: Transaction }) {
+function TransactionRow({ transaction: tx, locale }: { transaction: Transaction; locale: string }) {
   const { t } = useTranslation();
   const catColor = CATEGORY_COLORS[tx.category] ?? Colors.subtle;
 
@@ -169,7 +146,7 @@ function TransactionRow({ transaction: tx }: { transaction: Transaction }) {
       </View>
 
       <Text style={styles.txAmount}>
-        -{Math.abs(tx.amount).toLocaleString('sv-SE')} kr
+        -{Math.abs(tx.amount).toLocaleString(locale)} kr
       </Text>
     </View>
   );
@@ -190,7 +167,7 @@ const styles = StyleSheet.create({
   },
   summaryStrip: {
     paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing.sm,
+    paddingBottom: Spacing.xs,
   },
   summaryText: {
     fontFamily: Typography.medium,
@@ -198,53 +175,15 @@ const styles = StyleSheet.create({
     color: Colors.muted,
   },
 
-  // Sparrunda summary
-  sparrundaCard: {
-    marginHorizontal: Spacing.lg,
-    marginBottom: Spacing.md,
-    backgroundColor: Colors.positiveSoft,
-    borderRadius: Radius.lg,
-    borderWidth: 1,
-    borderColor: Colors.positive + '30',
-    padding: Spacing.md,
-    gap: Spacing.sm,
-  },
-  sparrundaMain: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-  },
-  sparrundaBadge: {
-    fontSize: 16,
-    color: Colors.positive,
-    flexShrink: 0,
-  },
-  sparrundaNumbers: { flex: 1, gap: 1 },
-  sparrundaTitle: {
-    fontFamily: Typography.semibold,
-    fontSize: 13,
-    color: Colors.text,
-  },
+  // Sparrunda one-liner
   sparrundaLine: {
+    paddingHorizontal: Spacing.lg,
+    paddingBottom: Spacing.sm,
+  },
+  sparrundaText: {
     fontFamily: Typography.regular,
     fontSize: 12,
-    color: Colors.muted,
-  },
-  sparrundaHelp: {
-    fontFamily: Typography.bold,
-    fontSize: 13,
     color: Colors.positive,
-    width: 24,
-    textAlign: 'center',
-  },
-  sparrundaExplanation: {
-    fontFamily: Typography.regular,
-    fontSize: 12,
-    color: Colors.muted,
-    lineHeight: 18,
-    paddingTop: Spacing.xs,
-    borderTopWidth: 1,
-    borderTopColor: Colors.positive + '20',
   },
 
   // Filter
@@ -256,9 +195,7 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   filterPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
+    minWidth: 72,
     flexShrink: 0,
     paddingHorizontal: Spacing.md,
     paddingVertical: 8,
@@ -266,21 +203,18 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
     borderWidth: 1,
     borderColor: Colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   filterPillActive: {
     backgroundColor: Colors.accent,
     borderColor: Colors.accent,
   },
-  filterDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    flexShrink: 0,
-  },
   filterPillText: {
     fontFamily: Typography.medium,
     fontSize: 13,
     color: Colors.muted,
+    textAlign: 'center',
   },
   filterPillTextActive: {
     color: Colors.white,

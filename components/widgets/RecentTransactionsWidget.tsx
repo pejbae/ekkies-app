@@ -1,13 +1,19 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import { Colors, Typography, Spacing, Radius } from '@/constants/theme';
-import { MOCK_TRANSACTIONS, CATEGORY_COLORS } from '@/constants/mockData';
+import { getMockData, CATEGORY_COLORS } from '@/constants/mockData';
 import { useTranslation } from 'react-i18next';
+import { useApp } from '@/context/AppContext';
+import { useNumberLocale } from '@/utils/locale';
 import WidgetShell from './WidgetShell';
 
 export default function RecentTransactionsWidget() {
   const { t } = useTranslation();
-  const recent = MOCK_TRANSACTIONS.slice(0, 3);
+  const { activeAccount } = useApp();
+  const locale = useNumberLocale();
+
+  const { transactions } = getMockData(activeAccount);
+  const recent = transactions.filter((tx) => tx.amount < 0).slice(0, 3);
 
   return (
     <WidgetShell
@@ -17,7 +23,6 @@ export default function RecentTransactionsWidget() {
     >
       <View style={styles.list}>
         {recent.map((tx, i) => {
-          const isIncome = tx.amount > 0;
           const dotColor = CATEGORY_COLORS[tx.category];
           return (
             <View key={tx.id} style={[styles.row, i < recent.length - 1 && styles.rowBorder]}>
@@ -31,8 +36,8 @@ export default function RecentTransactionsWidget() {
                   </View>
                 </View>
               </View>
-              <Text style={[styles.amount, { color: isIncome ? Colors.positive : Colors.text }]}>
-                {isIncome ? '+' : ''}{tx.amount.toLocaleString('sv-SE')} kr
+              <Text style={styles.amount}>
+                -{Math.abs(tx.amount).toLocaleString(locale)} kr
               </Text>
             </View>
           );
@@ -93,6 +98,7 @@ const styles = StyleSheet.create({
     fontFamily: Typography.semibold,
     fontSize: 14,
     letterSpacing: -0.3,
+    color: Colors.text,
     flexShrink: 0,
   },
 });

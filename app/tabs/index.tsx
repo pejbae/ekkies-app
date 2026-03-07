@@ -2,12 +2,13 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-nati
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Colors, Typography, Spacing } from '@/constants/theme';
-import { MOCK_USER } from '@/constants/mockData';
+import { getMockData } from '@/constants/mockData';
 import { useTranslation } from 'react-i18next';
 import { useApp } from '@/context/AppContext';
 import { WidgetId } from '@/constants/widgets';
 
 import SafeToSpendWidget from '@/components/widgets/SafeToSpendWidget';
+import PaydayCountdownWidget from '@/components/widgets/PaydayCountdownWidget';
 import SparrundaWidget from '@/components/widgets/SparrundaWidget';
 import BudgetOverviewWidget from '@/components/widgets/BudgetOverviewWidget';
 import RecentTransactionsWidget from '@/components/widgets/RecentTransactionsWidget';
@@ -16,19 +17,21 @@ import SubscriptionsWidget from '@/components/widgets/SubscriptionsWidget';
 
 function WidgetRenderer({ id }: { id: WidgetId }) {
   switch (id) {
-    case 'safe_to_spend':      return <SafeToSpendWidget />;
-    case 'sparrunda':          return <SparrundaWidget />;
-    case 'budget_overview':    return <BudgetOverviewWidget />;
+    case 'safe_to_spend':       return <SafeToSpendWidget />;
+    case 'payday_countdown':    return <PaydayCountdownWidget />;
+    case 'sparrunda':           return <SparrundaWidget />;
+    case 'budget_overview':     return <BudgetOverviewWidget />;
     case 'recent_transactions': return <RecentTransactionsWidget />;
-    case 'month_health':       return <MonthHealthWidget />;
-    case 'subscriptions':      return <SubscriptionsWidget />;
-    default:                   return null;
+    case 'month_health':        return <MonthHealthWidget />;
+    case 'subscriptions':       return <SubscriptionsWidget />;
+    default:                    return null;
   }
 }
 
 export default function Home() {
   const { t } = useTranslation();
-  const { widgetOrder } = useApp();
+  const { widgetOrder, activeAccount } = useApp();
+  const { user } = getMockData(activeAccount);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -36,13 +39,13 @@ export default function Home() {
 
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.greeting}>{t('home.greeting', { name: MOCK_USER.name })}</Text>
+          <Text style={styles.greeting}>{t('home.greeting', { name: user.name })}</Text>
           <TouchableOpacity
             style={styles.avatar}
             onPress={() => router.push('/tabs/profile')}
             activeOpacity={0.8}
           >
-            <Text style={styles.avatarText}>{MOCK_USER.name[0].toUpperCase()}</Text>
+            <Text style={styles.avatarText}>{user.name[0].toUpperCase()}</Text>
           </TouchableOpacity>
         </View>
 

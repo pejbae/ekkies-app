@@ -44,24 +44,25 @@
     "today_strip": "Idag · {{amount}} kr · {{count}} köp",
     "budget_section": "Budget",
     "budget_used": "{{pct}}% av budget använd",
-    "see_all_budget": "Se alla",
-    "recent": "Senaste",
-    "see_all": "Se alla",
     "no_budgets": "Ingen budget satt ännu",
-    "roundup_title": "Sparrunda — Avrundad besparing",
-    "roundup_body": "Avrunda varje köp till närmaste 50 kr och du kan spara {{weekly}} kr den här veckan — {{monthly}} kr denna månad.",
-    "roundup_cta": "Hur fungerar det?",
-    "roundup_explanation": "Varje gång du köper något går skillnaden mellan vad du betalade och nästa 50-kronor till sparande. T.ex. ett kaffe för 43 kr → du sparar 7 kr. Små belopp, stora resultat med tiden. Gör det manuellt för nu — automatiska avrundningar kommer snart.",
+    "sparrunda_banner": "Avrunda veckans köp → +{{amount}} kr potentiellt sparande",
+    "sparrunda_inline": "✦ Om du avrundar veckans köp = +{{amount}} kr",
     "manage": "Hantera →",
     "see_all": "Se alla →",
-    "see_details": "Detaljer →"
+    "see_details": "Detaljer →",
+    "payday_countdown_label": "dagar till lön",
+    "payday_countdown_one": "{{count}} dag till lön",
+    "payday_on": "Lön den {{day}}:e",
+    "month_progress": "{{pct}}% av månaden använd"
   },
   "widgets": {
     "safe_to_spend": "Kvar idag",
+    "payday_countdown": "Löndag",
     "sparrunda": "Sparrunda",
     "budget": "Budget",
     "recent": "Senaste",
-    "month_health": "Månadsläge",
+    "month_health": "Utgifter",
+    "spending": "Utgifter",
     "subscriptions": "Prenumerationer",
     "customize_title": "Hem-widgets",
     "customize_subtitle": "Välj vad du vill se på din startsida"
@@ -91,7 +92,9 @@
     "wizard_last_month": "Förra månaden: {{amount}} kr",
     "wizard_suggested": "+10% buffert → {{amount}} kr",
     "wizard_allocated": "Fördelat: {{allocated}} / {{total}} kr",
-    "wizard_over": "Över budget — minska några belopp"
+    "wizard_over": "Över budget — minska några belopp",
+    "pin_categories": "Välj kategorier",
+    "pin_subtitle": "Välj vilka budgetar som visas på startsidan"
   },
   "transactions": {
     "title": "Pengar",
@@ -100,7 +103,6 @@
     "monthly_summary_one": "Den här månaden · {{amount}} kr på {{count}} transaktion",
     "monthly_summary_other": "Den här månaden · {{amount}} kr på {{count}} transaktioner",
     "daily_total": "{{amount}} kr",
-    "roundup_day": "Sparrunda: +{{amount}} kr",
     "sparrunda_week": "Den här veckan: +{{amount}} kr",
     "sparrunda_month": "Den här månaden: +{{amount}} kr",
     "sparrunda_how": "Hur fungerar det?"
@@ -139,7 +141,8 @@
     "no_budgets_cta": "Sätt en budget",
     "roundup_title": "Sparrunda — spararpotential",
     "roundup_detail": "Den här månaden hade du kunnat spara {{amount}} kr genom att avrunda varje köp till närmaste 50 kr. Det är {{monthly}} kr projicerat för hela året.",
-    "roundup_coming": "Automatiska avrundningar — kommer snart."
+    "roundup_coming": "Automatiska avrundningar — kommer snart.",
+    "over_label": "ÖVER"
   },
   "profile": {
     "title": "Jag",
@@ -149,8 +152,12 @@
     "money_in": "↓ {{amount}} kr",
     "money_out": "↑ {{amount}} kr",
     "balance_left": "{{amount}} kr kvar",
+    "balance_stat_label": "kvar",
     "customize_section": "Hem-widgets",
-    "settings_section": "Inställningar"
+    "settings_section": "Inställningar",
+    "account_section": "Demokonto",
+    "account_pej": "Pej — hälsosam",
+    "account_alex": "Alex — över budget"
   },
   "settings": {
     "title": "Inställningar",

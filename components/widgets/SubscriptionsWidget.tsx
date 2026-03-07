@@ -1,14 +1,19 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import { Colors, Typography, Spacing } from '@/constants/theme';
-import { MOCK_TRANSACTIONS } from '@/constants/mockData';
+import { getMockData } from '@/constants/mockData';
 import { useTranslation } from 'react-i18next';
+import { useApp } from '@/context/AppContext';
+import { useNumberLocale } from '@/utils/locale';
 import WidgetShell from './WidgetShell';
 
 export default function SubscriptionsWidget() {
   const { t } = useTranslation();
+  const { activeAccount } = useApp();
+  const locale = useNumberLocale();
 
-  const subscriptions = MOCK_TRANSACTIONS.filter(
+  const { transactions } = getMockData(activeAccount);
+  const subscriptions = transactions.filter(
     (tx) => tx.category === 'prenumerationer' && tx.amount < 0
   );
   const total = subscriptions.reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
@@ -23,14 +28,14 @@ export default function SubscriptionsWidget() {
     >
       <View style={styles.totalRow}>
         <Text style={styles.totalLabel}>{t('insights.subscriptions_total_label')}</Text>
-        <Text style={styles.totalAmount}>{total.toLocaleString('sv-SE')} kr</Text>
+        <Text style={styles.totalAmount}>{total.toLocaleString(locale)} kr</Text>
       </View>
       <View style={styles.list}>
         {subscriptions.map((sub, i) => (
           <View key={sub.id} style={[styles.row, i < subscriptions.length - 1 && styles.rowBorder]}>
             <Text style={styles.emoji}>{sub.emoji}</Text>
             <Text style={styles.name} numberOfLines={1}>{sub.merchant}</Text>
-            <Text style={styles.amount}>{Math.abs(sub.amount).toLocaleString('sv-SE')} kr</Text>
+            <Text style={styles.amount}>{Math.abs(sub.amount).toLocaleString(locale)} kr</Text>
           </View>
         ))}
       </View>
