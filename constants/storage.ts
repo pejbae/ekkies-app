@@ -8,6 +8,7 @@ const KEYS = {
   LANGUAGE: 'ekkies_language',
   BANK_CONNECTED: 'ekkies_bank_connected',
   BUDGETS: 'ekkies_budgets',
+  WIDGET_ORDER: 'ekkies_widget_order',
 };
 
 const SECURE_KEYS = {
@@ -80,6 +81,22 @@ export async function getBudgets(): Promise<Record<string, number>> {
 
 export async function saveBudgets(budgets: Record<string, number>): Promise<void> {
   await AsyncStorage.setItem(KEYS.BUDGETS, JSON.stringify(budgets));
+}
+
+// Widget order
+
+export async function getWidgetOrder(): Promise<string[] | null> {
+  const v = await AsyncStorage.getItem(KEYS.WIDGET_ORDER);
+  if (!v) return null;
+  try {
+    return JSON.parse(v);
+  } catch {
+    return null;
+  }
+}
+
+export async function saveWidgetOrder(order: string[]): Promise<void> {
+  await AsyncStorage.setItem(KEYS.WIDGET_ORDER, JSON.stringify(order));
 }
 
 // Tink tokens (secure)

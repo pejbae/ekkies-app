@@ -51,7 +51,20 @@
     "roundup_title": "Sparrunda — Round-up savings",
     "roundup_body": "Round up each purchase to the nearest 50 kr and you could save {{weekly}} kr this week — {{monthly}} kr this month.",
     "roundup_cta": "How does it work?",
-    "roundup_explanation": "Every time you spend money, the difference between what you paid and the next 50 kr goes into savings. E.g. a 43 kr coffee → you'd save 7 kr. Small amounts, big results over time. For now, do it manually — automatic round-ups are coming soon."
+    "roundup_explanation": "Every time you spend money, the difference between what you paid and the next 50 kr goes into savings. E.g. a 43 kr coffee → you'd save 7 kr. Small amounts, big results over time. For now, do it manually — automatic round-ups are coming soon.",
+    "manage": "Manage →",
+    "see_all": "See all →",
+    "see_details": "Details →"
+  },
+  "widgets": {
+    "safe_to_spend": "Safe to Spend",
+    "sparrunda": "Sparrunda",
+    "budget": "Budget",
+    "recent": "Recent",
+    "month_health": "Month health",
+    "subscriptions": "Subscriptions",
+    "customize_title": "Home widgets",
+    "customize_subtitle": "Choose what appears on your home screen"
   },
   "budget": {
     "title": "Budget",
@@ -66,11 +79,19 @@
     "save": "Save",
     "cancel": "Cancel",
     "add_hint": "Tap a category to set its budget",
-    "paycheck_banner": "Your paycheck landed · {{amount}} kr",
-    "suggest_split": "Allocate your paycheck →",
+    "paycheck_banner": "Paycheck landed · {{amount}} kr — allocate it",
+    "suggest_split": "Allocate →",
     "suggestion_intro": "Based on last month's spending, here's a starting point:",
     "apply_all": "Apply all",
-    "not_now": "Not now"
+    "not_now": "Not now",
+    "wizard_paycheck_header": "Your paycheck: {{amount}} kr",
+    "wizard_needs_label": "Needs last month",
+    "wizard_wants_label": "Wants last month",
+    "wizard_target": "Aim: ~70% spending · 30% savings",
+    "wizard_last_month": "Last month: {{amount}} kr",
+    "wizard_suggested": "+10% buffer → {{amount}} kr",
+    "wizard_allocated": "Allocated: {{allocated}} / {{total}} kr",
+    "wizard_over": "Over budget — reduce some amounts"
   },
   "transactions": {
     "title": "Money",
@@ -79,16 +100,19 @@
     "monthly_summary_one": "This month · {{amount}} kr across {{count}} transaction",
     "monthly_summary_other": "This month · {{amount}} kr across {{count}} transactions",
     "daily_total": "{{amount}} kr",
-    "roundup_day": "Round-up: +{{amount}} kr"
+    "roundup_day": "Round-up: +{{amount}} kr",
+    "sparrunda_week": "This week: +{{amount}} kr",
+    "sparrunda_month": "This month: +{{amount}} kr",
+    "sparrunda_how": "How does it work?"
   },
   "categories": {
-    "mat": "Food & drinks",
+    "mat": "Food",
     "transport": "Transport",
-    "noje": "Entertainment",
+    "noje": "Fun",
     "halsa": "Health",
     "shopping": "Shopping",
     "hem": "Home",
-    "prenumerationer": "Subscriptions",
+    "prenumerationer": "Subs",
     "ovrigt": "Other",
     "lon": "Salary"
   },
@@ -105,20 +129,28 @@
     "spending_total": "{{amount}} kr discretionary this month",
     "subscriptions_title": "Recurring costs",
     "subscriptions_total": "{{amount}} kr / month",
+    "subscriptions_total_label": "This month",
     "subscriptions_empty": "No subscriptions this month.",
+    "days_left": "days to payday",
     "opportunity_title": "You have headroom.",
     "opportunity_detail": "{{amount}} kr under budget. Could go to savings — round-ups coming soon.",
     "no_budgets_title": "You don't have a budget yet.",
     "no_budgets_detail": "That's fine — but you can't improve what you don't track.",
     "no_budgets_cta": "Set a budget",
-    "roundup_title": "Sparrunda potential",
+    "roundup_title": "Sparrunda — savings potential",
     "roundup_detail": "This month you could have saved {{amount}} kr by rounding up each purchase to the nearest 50 kr. That's {{monthly}} kr projected for the year.",
     "roundup_coming": "Automatic round-ups — coming soon."
   },
   "profile": {
     "title": "Me",
     "member_since": "Tracking since {{days}} days",
-    "member_since_one": "Tracking since 1 day"
+    "member_since_one": "Tracking since 1 day",
+    "streak": "Day {{count}} of tracking",
+    "money_in": "↓ {{amount}} kr",
+    "money_out": "↑ {{amount}} kr",
+    "balance_left": "{{amount}} kr left",
+    "customize_section": "Home widgets",
+    "settings_section": "Settings"
   },
   "settings": {
     "title": "Settings",

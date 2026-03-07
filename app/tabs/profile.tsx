@@ -1,101 +1,160 @@
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Switch } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors, Typography, Spacing, Radius, Shadow } from '@/constants/theme';
 import { useTranslation } from 'react-i18next';
 import { useApp } from '@/context/AppContext';
 import { Language } from '@/constants/storage';
-import { MOCK_USER } from '@/constants/mockData';
+import {
+  MOCK_USER, MOCK_TRANSACTIONS,
+  getMonthSpendingByCategory, getBalanceUntilPayday,
+} from '@/constants/mockData';
+import { WIDGET_META, DEFAULT_WIDGET_ORDER, WidgetId } from '@/constants/widgets';
+
+const DISCRETIONARY = ['mat', 'transport', 'noje', 'halsa', 'shopping', 'prenumerationer'] as const;
 
 export default function Profile() {
   const { t } = useTranslation();
-  const { language, setLanguage, payday, bankConnected } = useApp();
+  const { language, setLanguage, payday, bankConnected, widgetOrder, setWidgetOrder } = useApp();
 
   const handleLanguage = async (lang: Language) => {
     if (lang !== language) await setLanguage(lang);
   };
 
+  const toggleWidget = async (id: WidgetId) => {
+    if (id === 'safe_to_spend') return; // always on
+    if (widgetOrder.includes(id)) {
+      await setWidgetOrder(widgetOrder.filter((w) => w !== id));
+    } else {
+      const newOrder = DEFAULT_WIDGET_ORDER.filter(
+        (w) => w === id || widgetOrder.includes(w)
+      );
+      await setWidgetOrder(newOrder);
+    }
+  };
+
+  const byCategory = getMonthSpendingByCategory(MOCK_TRANSACTIONS);
+  const totalSpent = DISCRETIONARY.reduce((sum, cat) => sum + (byCategory[cat] ?? 0), 0);
+  const income = MOCK_USER.monthlyIncome;
+  const balance = getBalanceUntilPayday(MOCK_TRANSACTIONS, income);
+  const trackingDays = 14;
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
 
-        {/* Profile hero */}
-        <View style={styles.profileHero}>
-          <View style={styles.avatarLarge}>
+        {/* ── Identity + snapshot ── */}
+        <View style={styles.hero}>
+          <View style={styles.avatarWrap}>
             <Text style={styles.avatarText}>{MOCK_USER.name[0].toUpperCase()}</Text>
           </View>
-          <Text style={styles.profileName}>{MOCK_USER.name}</Text>
-          <Text style={styles.profileSub}>{t('profile.member_since', { days: 14 })}</Text>
-        </View>
+          <Text style={styles.heroName}>{MOCK_USER.name}</Text>
+          <Text style={styles.heroStreak}>{t('profile.streak', { count: trackingDays })}</Text>
 
-        {/* Language */}
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>{t('settings.language_section')}</Text>
-          <View style={styles.card}>
-            <View style={styles.segmentWrap}>
-              {(['sv', 'en'] as Language[]).map((lang) => (
-                <TouchableOpacity
-                  key={lang}
-                  style={[styles.segment, language === lang && styles.segmentActive]}
-                  onPress={() => handleLanguage(lang)}
-                  activeOpacity={0.8}
-                >
-                  <Text style={[styles.segmentText, language === lang && styles.segmentTextActive]}>
-                    {t(`settings.language_${lang}`)}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+          <View style={styles.statRow}>
+            <View style={[styles.stat, { backgroundColor: Colors.positiveSoft }]}>
+              <Text style={[styles.statValue, { color: Colors.positive }]}>
+                ↓ {income.toLocaleString('sv-SE')} kr
+              </Text>
+              <Text style={styles.statLabel}>{t('settings.payday_section')}</Text>
+            </View>
+            <View style={[styles.stat, { backgroundColor: Colors.surface }]}>
+              <Text style={[styles.statValue, { color: Colors.text }]}>
+                ↑ {totalSpent.toLocaleString('sv-SE')} kr
+              </Text>
+              <Text style={styles.statLabel}>{t('insights.spending_title')}</Text>
+            </View>
+            <View style={[styles.stat, { backgroundColor: Colors.accentSoft }]}>
+              <Text style={[styles.statValue, { color: Colors.accent }]}>
+                {balance.toLocaleString('sv-SE')} kr
+              </Text>
+              <Text style={styles.statLabel}>kvar</Text>
             </View>
           </View>
         </View>
 
-        {/* Payday */}
+        {/* ── Home widgets ── */}
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>{t('settings.payday_section')}</Text>
-          <View style={styles.card}>
-            <View style={styles.row}>
-              <Text style={styles.rowLabel}>{t('settings.payday_section')}</Text>
-              <Text style={styles.rowValue}>
+          <Text style={styles.sectionLabel}>{t('profile.customize_section')}</Text>
+          <Text style={styles.sectionSub}>{t('widgets.customize_subtitle')}</Text>
+          <View style={[styles.card, Shadow.card]}>
+            {DEFAULT_WIDGET_ORDER.map((id, i) => {
+              const meta = WIDGET_META[id];
+              const isOn = widgetOrder.includes(id);
+              const isLast = i === DEFAULT_WIDGET_ORDER.length - 1;
+              const isAlwaysOn = id === 'safe_to_spend';
+              return (
+                <View key={id} style={[styles.widgetRow, !isLast && styles.rowBorder]}>
+                  <Text style={styles.widgetIcon}>{meta.icon}</Text>
+                  <Text style={styles.widgetLabel}>{t(meta.labelKey)}</Text>
+                  <Switch
+                    value={isOn}
+                    onValueChange={() => toggleWidget(id)}
+                    disabled={isAlwaysOn}
+                    trackColor={{ false: Colors.surface2, true: Colors.accent + '60' }}
+                    thumbColor={isOn ? Colors.accent : Colors.subtle}
+                    ios_backgroundColor={Colors.surface2}
+                  />
+                </View>
+              );
+            })}
+          </View>
+        </View>
+
+        {/* ── Settings (compact single card) ── */}
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>{t('profile.settings_section')}</Text>
+          <View style={[styles.card, Shadow.card]}>
+            {/* Language */}
+            <View style={[styles.settingsRow, styles.rowBorder]}>
+              <Text style={styles.settingsIcon}>🌐</Text>
+              <Text style={styles.settingsLabel}>{t('settings.language_section')}</Text>
+              <View style={styles.langToggle}>
+                {(['sv', 'en'] as Language[]).map((lang) => (
+                  <TouchableOpacity
+                    key={lang}
+                    style={[styles.langBtn, language === lang && styles.langBtnActive]}
+                    onPress={() => handleLanguage(lang)}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={[styles.langBtnText, language === lang && styles.langBtnTextActive]}>
+                      {lang.toUpperCase()}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
+            {/* Payday */}
+            <View style={[styles.settingsRow, styles.rowBorder]}>
+              <Text style={styles.settingsIcon}>📅</Text>
+              <Text style={styles.settingsLabel}>{t('settings.payday_section')}</Text>
+              <Text style={styles.settingsValue}>
                 {payday ? t('settings.payday_value', { day: payday }) : '25th'}
               </Text>
             </View>
-          </View>
-        </View>
 
-        {/* Bank */}
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>{t('settings.bank_section')}</Text>
-          <View style={styles.card}>
-            {bankConnected ? (
-              <View style={styles.row}>
-                <Text style={styles.rowLabel}>{t('settings.bank_section')}</Text>
-                <View style={styles.rowRight}>
+            {/* Bank */}
+            <View style={styles.settingsRow}>
+              <Text style={styles.settingsIcon}>🏦</Text>
+              <Text style={styles.settingsLabel}>{t('settings.bank_section')}</Text>
+              {bankConnected ? (
+                <View style={styles.connectedBadge}>
                   <View style={[styles.statusDot, { backgroundColor: Colors.positive }]} />
-                  <Text style={[styles.rowValue, { color: Colors.positive }]}>
+                  <Text style={[styles.settingsValue, { color: Colors.positive }]}>
                     {t('settings.bank_connected')}
                   </Text>
                 </View>
-              </View>
-            ) : (
-              <View style={styles.bankNotConnected}>
-                <Text style={styles.bankNote}>{t('settings.bank_mock_note')}</Text>
-                <TouchableOpacity style={styles.connectBtn} activeOpacity={0.85}>
-                  <Text style={styles.connectBtnText}>{t('settings.connect_bank')}</Text>
+              ) : (
+                <TouchableOpacity activeOpacity={0.7}>
+                  <Text style={styles.connectText}>{t('settings.connect_bank')} →</Text>
                 </TouchableOpacity>
-              </View>
-            )}
-          </View>
-        </View>
-
-        {/* About */}
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>{t('settings.app_section')}</Text>
-          <View style={styles.card}>
-            <View style={styles.row}>
-              <Text style={styles.rowLabel}>ekkies</Text>
-              <Text style={styles.rowMeta}>{t('settings.version', { version: '1.0.0' })}</Text>
+              )}
             </View>
           </View>
         </View>
+
+        {/* ── About ── */}
+        <Text style={styles.about}>ekkies v1.0.0</Text>
 
         <View style={{ height: Spacing.xxl }} />
       </ScrollView>
@@ -106,16 +165,17 @@ export default function Profile() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
 
-  profileHero: {
+  hero: {
     alignItems: 'center',
     paddingTop: Spacing.xl,
-    paddingBottom: Spacing.xl,
-    gap: Spacing.sm,
+    paddingBottom: Spacing.lg,
+    paddingHorizontal: Spacing.lg,
+    gap: Spacing.xs,
   },
-  avatarLarge: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+  avatarWrap: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
     backgroundColor: Colors.accentSoft,
     alignItems: 'center',
     justifyContent: 'center',
@@ -126,24 +186,53 @@ const styles = StyleSheet.create({
   },
   avatarText: {
     fontFamily: Typography.display,
-    fontSize: 32,
+    fontSize: 28,
     color: Colors.accent,
   },
-  profileName: {
+  heroName: {
     fontFamily: Typography.bold,
-    fontSize: 24,
+    fontSize: 22,
     color: Colors.text,
     letterSpacing: -0.5,
   },
-  profileSub: {
+  heroStreak: {
     fontFamily: Typography.regular,
-    fontSize: 14,
+    fontSize: 13,
     color: Colors.muted,
+    marginBottom: Spacing.md,
+  },
+  statRow: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    width: '100%',
+    marginTop: Spacing.sm,
+  },
+  stat: {
+    flex: 1,
+    borderRadius: Radius.lg,
+    padding: Spacing.sm + 2,
+    alignItems: 'center',
+    gap: 2,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  statValue: {
+    fontFamily: Typography.bold,
+    fontSize: 11,
+    letterSpacing: -0.3,
+    textAlign: 'center',
+  },
+  statLabel: {
+    fontFamily: Typography.regular,
+    fontSize: 10,
+    color: Colors.muted,
+    textAlign: 'center',
   },
 
   section: {
     paddingHorizontal: Spacing.lg,
-    marginBottom: Spacing.lg,
+    marginBottom: Spacing.xl,
+    gap: Spacing.sm,
   },
   sectionLabel: {
     fontFamily: Typography.semibold,
@@ -151,7 +240,13 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     textTransform: 'uppercase',
     color: Colors.muted,
-    marginBottom: Spacing.sm,
+  },
+  sectionSub: {
+    fontFamily: Typography.regular,
+    fontSize: 13,
+    color: Colors.subtle,
+    marginTop: -2,
+    marginBottom: 2,
   },
   card: {
     backgroundColor: Colors.surface,
@@ -160,81 +255,99 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     overflow: 'hidden',
   },
-  segmentWrap: {
-    flexDirection: 'row',
-    padding: 4,
-    gap: 4,
+  rowBorder: {
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
   },
-  segment: {
+
+  widgetRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 12,
+    gap: Spacing.md,
+  },
+  widgetIcon: {
+    fontSize: 18,
+    width: 28,
+    textAlign: 'center',
+  },
+  widgetLabel: {
+    fontFamily: Typography.medium,
+    fontSize: 14,
+    color: Colors.text,
     flex: 1,
-    paddingVertical: 10,
-    alignItems: 'center',
-    borderRadius: Radius.md,
   },
-  segmentActive: {
-    backgroundColor: Colors.accentSoft,
-    borderWidth: 1,
-    borderColor: Colors.accent + '50',
-  },
-  segmentText: {
-    fontFamily: Typography.medium,
-    fontSize: 14,
-    color: Colors.muted,
-  },
-  segmentTextActive: {
-    color: Colors.accent,
-    fontFamily: Typography.semibold,
-  },
-  row: {
+
+  settingsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: Spacing.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 14,
+    gap: Spacing.sm,
   },
-  rowLabel: {
+  settingsIcon: {
+    fontSize: 16,
+    width: 24,
+    textAlign: 'center',
+  },
+  settingsLabel: {
     fontFamily: Typography.medium,
     fontSize: 14,
     color: Colors.text,
+    flex: 1,
   },
-  rowValue: {
+  settingsValue: {
     fontFamily: Typography.semibold,
-    fontSize: 14,
-    color: Colors.text,
-  },
-  rowMeta: {
-    fontFamily: Typography.regular,
     fontSize: 13,
     color: Colors.muted,
   },
-  rowRight: {
+  langToggle: {
+    flexDirection: 'row',
+    gap: 3,
+    backgroundColor: Colors.surface2,
+    borderRadius: Radius.md,
+    padding: 3,
+  },
+  langBtn: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: Radius.sm,
+  },
+  langBtnActive: {
+    backgroundColor: Colors.white,
+    ...Shadow.card,
+  },
+  langBtnText: {
+    fontFamily: Typography.medium,
+    fontSize: 12,
+    color: Colors.muted,
+  },
+  langBtnTextActive: {
+    fontFamily: Typography.bold,
+    color: Colors.text,
+  },
+  connectedBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.sm,
+    gap: 5,
   },
   statusDot: {
     width: 7,
     height: 7,
     borderRadius: 4,
   },
-  bankNotConnected: {
-    padding: Spacing.md,
-    gap: Spacing.md,
-  },
-  bankNote: {
-    fontFamily: Typography.regular,
-    fontSize: 13,
-    color: Colors.muted,
-    lineHeight: 20,
-  },
-  connectBtn: {
-    backgroundColor: Colors.accent,
-    borderRadius: Radius.md,
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
-  connectBtnText: {
+  connectText: {
     fontFamily: Typography.semibold,
-    fontSize: 14,
-    color: Colors.white,
+    fontSize: 13,
+    color: Colors.accent,
+  },
+
+  about: {
+    fontFamily: Typography.regular,
+    fontSize: 12,
+    color: Colors.subtle,
+    textAlign: 'center',
+    paddingBottom: Spacing.md,
   },
 });

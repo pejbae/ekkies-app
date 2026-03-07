@@ -92,6 +92,17 @@ export default function Budget() {
     setWizardOpen(true);
   };
 
+  const wizardTotal = BUDGET_CATEGORIES.reduce(
+    (sum, cat) => sum + (parseInt(wizardAmounts[cat] ?? '0', 10) || 0),
+    0
+  );
+  const paycheckAmount = paycheckTx?.amount ?? MOCK_USER.monthlyIncome;
+
+  const NEEDS_CATS: Category[] = ['mat', 'transport'];
+  const WANTS_CATS: Category[] = ['noje', 'halsa', 'shopping', 'prenumerationer'];
+  const needsLastMonth = NEEDS_CATS.reduce((sum, cat) => sum + (byCategory[cat] ?? 0), 0);
+  const wantsLastMonth = WANTS_CATS.reduce((sum, cat) => sum + (byCategory[cat] ?? 0), 0);
+
   const applyWizard = async () => {
     await Promise.all(
       BUDGET_CATEGORIES.map(async (cat) => {
@@ -300,7 +311,24 @@ export default function Budget() {
           />
           <View style={[styles.modalSheet, styles.wizardSheet]}>
             <View style={styles.modalHandle} />
-            <Text style={styles.modalTitle}>{t('budget.suggestion_intro')}</Text>
+
+            {/* Wizard header summary */}
+            <View style={styles.wizardHeader}>
+              <Text style={styles.wizardHeaderPaycheck}>
+                {t('budget.wizard_paycheck_header', { amount: paycheckAmount.toLocaleString('sv-SE') })}
+              </Text>
+              <View style={styles.wizardHeaderRow}>
+                <Text style={styles.wizardHeaderLabel}>{t('budget.wizard_needs_label')}</Text>
+                <Text style={styles.wizardHeaderValue}>{needsLastMonth.toLocaleString('sv-SE')} kr</Text>
+              </View>
+              <View style={styles.wizardHeaderRow}>
+                <Text style={styles.wizardHeaderLabel}>{t('budget.wizard_wants_label')}</Text>
+                <Text style={styles.wizardHeaderValue}>{wantsLastMonth.toLocaleString('sv-SE')} kr</Text>
+              </View>
+              <View style={[styles.wizardHeaderRow, styles.wizardHeaderTarget]}>
+                <Text style={styles.wizardTargetText}>{t('budget.wizard_target')}</Text>
+              </View>
+            </View>
 
             <FlatList
               data={BUDGET_CATEGORIES}
@@ -311,10 +339,21 @@ export default function Budget() {
                 const catColor = CATEGORY_COLORS[cat] ?? Colors.accent;
                 return (
                   <View style={styles.wizardRow}>
-                    <View style={[styles.catDot, { backgroundColor: catColor }]} />
-                    <Text style={styles.wizardCatName} numberOfLines={1}>
-                      {getCategoryLabel(cat, t)}
-                    </Text>
+                    <View style={styles.wizardRowLeft}>
+                      <View style={styles.wizardCatTop}>
+                        <View style={[styles.catDot, { backgroundColor: catColor }]} />
+                        <Text style={styles.wizardCatName} numberOfLines={1}>
+                          {getCategoryLabel(cat, t)}
+                        </Text>
+                      </View>
+                      {(byCategory[cat] ?? 0) > 0 && (
+                        <Text style={styles.wizardLastMonth}>
+                          {t('budget.wizard_last_month', { amount: (byCategory[cat] ?? 0).toLocaleString('sv-SE') })}
+                          {' → '}
+                          {t('budget.wizard_suggested', { amount: suggestBudget(byCategory[cat] ?? 0).toLocaleString('sv-SE') })}
+                        </Text>
+                      )}
+                    </View>
                     <View style={styles.wizardInputWrap}>
                       <TextInput
                         style={styles.wizardInput}
@@ -329,6 +368,32 @@ export default function Budget() {
                 );
               }}
             />
+
+            {/* Live allocation bar */}
+            <View style={styles.allocationWrap}>
+              <View style={styles.allocationLabelRow}>
+                <Text style={styles.allocationLabel}>
+                  {t('budget.wizard_allocated', {
+                    allocated: wizardTotal.toLocaleString('sv-SE'),
+                    total: paycheckAmount.toLocaleString('sv-SE'),
+                  })}
+                </Text>
+                {wizardTotal > paycheckAmount && (
+                  <Text style={styles.allocationOver}>{t('budget.wizard_over')}</Text>
+                )}
+              </View>
+              <View style={styles.allocationTrack}>
+                <View
+                  style={[
+                    styles.allocationFill,
+                    {
+                      width: `${Math.min((wizardTotal / paycheckAmount) * 100, 100)}%`,
+                      backgroundColor: wizardTotal > paycheckAmount ? Colors.danger : Colors.positive,
+                    },
+                  ]}
+                />
+              </View>
+            </View>
 
             <View style={styles.modalActions}>
               <TouchableOpacity
@@ -617,6 +682,78 @@ const styles = StyleSheet.create({
     color: Colors.white,
   },
 
+  // Wizard header
+  wizardHeader: {
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.lg,
+    padding: Spacing.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    gap: 6,
+  },
+  wizardHeaderPaycheck: {
+    fontFamily: Typography.bold,
+    fontSize: 16,
+    color: Colors.text,
+    marginBottom: 4,
+  },
+  wizardHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  wizardHeaderLabel: {
+    fontFamily: Typography.regular,
+    fontSize: 13,
+    color: Colors.muted,
+  },
+  wizardHeaderValue: {
+    fontFamily: Typography.semibold,
+    fontSize: 13,
+    color: Colors.text,
+  },
+  wizardHeaderTarget: {
+    marginTop: 4,
+    paddingTop: 6,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+  },
+  wizardTargetText: {
+    fontFamily: Typography.medium,
+    fontSize: 12,
+    color: Colors.muted,
+    fontStyle: 'italic',
+  },
+
+  // Allocation bar
+  allocationWrap: {
+    gap: 6,
+  },
+  allocationLabelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  allocationLabel: {
+    fontFamily: Typography.medium,
+    fontSize: 12,
+    color: Colors.muted,
+  },
+  allocationOver: {
+    fontFamily: Typography.semibold,
+    fontSize: 11,
+    color: Colors.danger,
+  },
+  allocationTrack: {
+    height: 6,
+    backgroundColor: Colors.surface2,
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  allocationFill: {
+    height: 6,
+    borderRadius: 3,
+  },
+
   // Wizard rows
   wizardRow: {
     flexDirection: 'row',
@@ -628,11 +765,25 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.border,
   },
+  wizardRowLeft: {
+    flex: 1,
+    gap: 3,
+  },
+  wizardCatTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
   wizardCatName: {
     flex: 1,
     fontFamily: Typography.medium,
     fontSize: 14,
     color: Colors.text,
+  },
+  wizardLastMonth: {
+    fontFamily: Typography.regular,
+    fontSize: 11,
+    color: Colors.muted,
   },
   wizardInputWrap: {
     flexDirection: 'row',

@@ -47,27 +47,16 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="budget"
-        options={{
-          title: t('tabs.budget'),
-          tabBarIcon: ({ color }) => <BudgetIcon color={color} size={22} />,
-        }}
-      />
-      <Tabs.Screen
-        name="insights"
-        options={{
-          title: t('tabs.insights'),
-          tabBarIcon: ({ color }) => <InsightsIcon color={color} size={22} />,
-        }}
-      />
-      <Tabs.Screen
         name="profile"
         options={{
           title: t('tabs.me'),
           tabBarIcon: ({ color }) => <ProfileIcon color={color} size={22} />,
         }}
       />
-      {/* Hide legacy routes from tab bar */}
+      {/* Hidden screens — accessible via widget taps */}
+      <Tabs.Screen name="budget" options={{ href: null }} />
+      <Tabs.Screen name="insights" options={{ href: null }} />
+      {/* Hide legacy routes */}
       <Tabs.Screen name="settings" options={{ href: null }} />
       <Tabs.Screen name="categories" options={{ href: null }} />
     </Tabs>

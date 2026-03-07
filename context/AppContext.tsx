@@ -10,9 +10,12 @@ import {
   setBankConnected as storeBankConnected,
   getBudgets,
   saveBudgets,
+  getWidgetOrder,
+  saveWidgetOrder,
   Language,
 } from '@/constants/storage';
-import { MOCK_BUDGETS, Category } from '@/constants/mockData';
+import { MOCK_BUDGETS } from '@/constants/mockData';
+import { WidgetId, DEFAULT_WIDGET_ORDER } from '@/constants/widgets';
 import i18n from '@/i18n';
 
 type AppState = {
@@ -22,11 +25,13 @@ type AppState = {
   onboardingComplete: boolean;
   hydrated: boolean;
   budgets: Record<string, number>;
+  widgetOrder: WidgetId[];
   setPayday: (day: number) => Promise<void>;
   setLanguage: (lang: Language) => Promise<void>;
   setBankConnected: (connected: boolean) => Promise<void>;
   completeOnboarding: () => Promise<void>;
   setBudget: (category: string, amount: number) => Promise<void>;
+  setWidgetOrder: (order: WidgetId[]) => Promise<void>;
 };
 
 const AppContext = createContext<AppState | null>(null);
@@ -40,15 +45,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [budgets, setBudgetsState] = useState<Record<string, number>>(
     MOCK_BUDGETS as Record<string, number>
   );
+  const [widgetOrder, setWidgetOrderState] = useState<WidgetId[]>(DEFAULT_WIDGET_ORDER);
 
   useEffect(() => {
     (async () => {
-      const [pd, lang, bc, oc, savedBudgets] = await Promise.all([
+      const [pd, lang, bc, oc, savedBudgets, savedWidgets] = await Promise.all([
         getPayday(),
         getLanguage(),
         isBankConnected(),
         isOnboardingComplete(),
         getBudgets(),
+        getWidgetOrder(),
       ]);
       if (pd !== null) setPaydayState(pd);
       setLanguageState(lang);
@@ -56,6 +63,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setOnboardingCompleteState(oc);
       if (Object.keys(savedBudgets).length > 0) {
         setBudgetsState(savedBudgets);
+      }
+      if (savedWidgets && savedWidgets.length > 0) {
+        setWidgetOrderState(savedWidgets as WidgetId[]);
       }
       await i18n.changeLanguage(lang);
       setHydrated(true);
@@ -89,6 +99,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setBudgetsState(updated);
   };
 
+  const setWidgetOrder = async (order: WidgetId[]) => {
+    await saveWidgetOrder(order);
+    setWidgetOrderState(order);
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -98,11 +113,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
         onboardingComplete,
         hydrated,
         budgets,
+        widgetOrder,
         setPayday,
         setLanguage,
         setBankConnected,
         completeOnboarding,
         setBudget,
+        setWidgetOrder,
       }}
     >
       {children}

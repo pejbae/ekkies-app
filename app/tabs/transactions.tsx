@@ -19,6 +19,7 @@ const FILTER_CATEGORIES: (Category | 'all')[] = [
 export default function Transactions() {
   const { t, i18n } = useTranslation();
   const [activeFilter, setActiveFilter] = useState<Category | 'all'>('all');
+  const [sparrundaExpanded, setSparrundaExpanded] = useState(false);
 
   const locale = i18n.language === 'sv' ? 'sv-SE' : 'en-GB';
 
@@ -28,7 +29,9 @@ export default function Transactions() {
 
   const monthlyTotal = spending.reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
 
-  // Group by date, tracking daily total and raw date for round-up calc
+  const weeklyRoundup = Math.round(getRoundUpSavings(MOCK_TRANSACTIONS, 7));
+  const monthlyRoundup = Math.round(weeklyRoundup * 4.3);
+
   const grouped: { date: string; rawDate: string; items: Transaction[] }[] = [];
   spending.forEach((tx) => {
     const dateKey = new Date(tx.date).toLocaleDateString(locale, {
@@ -58,6 +61,36 @@ export default function Transactions() {
         </Text>
       </View>
 
+      {/* Sparrunda summary card */}
+      {weeklyRoundup > 0 && (
+        <View style={styles.sparrundaCard}>
+          <View style={styles.sparrundaMain}>
+            <Text style={styles.sparrundaBadge}>✦</Text>
+            <View style={styles.sparrundaNumbers}>
+              <Text style={styles.sparrundaTitle}>Sparrunda</Text>
+              <Text style={styles.sparrundaLine}>
+                {t('transactions.sparrunda_week', { amount: weeklyRoundup.toLocaleString('sv-SE') })}
+                {'  ·  '}
+                {t('transactions.sparrunda_month', { amount: monthlyRoundup.toLocaleString('sv-SE') })}
+              </Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => setSparrundaExpanded((v) => !v)}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Text style={styles.sparrundaHelp}>
+                {sparrundaExpanded ? '↑' : '?'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+          {sparrundaExpanded && (
+            <Text style={styles.sparrundaExplanation}>
+              {t('home.roundup_explanation')}
+            </Text>
+          )}
+        </View>
+      )}
+
       {/* Filter pills */}
       <ScrollView
         horizontal
@@ -72,6 +105,9 @@ export default function Transactions() {
             onPress={() => setActiveFilter(cat)}
             activeOpacity={0.75}
           >
+            {cat !== 'all' && (
+              <View style={[styles.filterDot, { backgroundColor: activeFilter === cat ? Colors.white : CATEGORY_COLORS[cat as Category] }]} />
+            )}
             <Text style={[styles.filterPillText, activeFilter === cat && styles.filterPillTextActive]}>
               {cat === 'all' ? t('transactions.filter_all') : getCategoryLabel(cat, t)}
             </Text>
@@ -89,10 +125,6 @@ export default function Transactions() {
         }
         renderItem={({ item: group }) => {
           const dailyTotal = group.items.reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
-          const dayTxs = MOCK_TRANSACTIONS.filter(
-            (tx) => tx.amount < 0 && new Date(tx.date).toDateString() === group.rawDate
-          );
-          const dayRoundup = getRoundUpSavings(dayTxs, 999);
           return (
             <View style={styles.group}>
               <View style={styles.groupHeader}>
@@ -104,13 +136,6 @@ export default function Transactions() {
               {group.items.map((tx) => (
                 <TransactionRow key={tx.id} transaction={tx} />
               ))}
-              {dayRoundup > 0 && (
-                <View style={styles.roundupPill}>
-                  <Text style={styles.roundupPillText}>
-                    {t('transactions.roundup_day', { amount: Math.round(dayRoundup).toLocaleString('sv-SE') })}
-                  </Text>
-                </View>
-              )}
             </View>
           );
         }}
@@ -165,13 +190,64 @@ const styles = StyleSheet.create({
   },
   summaryStrip: {
     paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing.md,
+    paddingBottom: Spacing.sm,
   },
   summaryText: {
     fontFamily: Typography.medium,
     fontSize: 13,
     color: Colors.muted,
   },
+
+  // Sparrunda summary
+  sparrundaCard: {
+    marginHorizontal: Spacing.lg,
+    marginBottom: Spacing.md,
+    backgroundColor: Colors.positiveSoft,
+    borderRadius: Radius.lg,
+    borderWidth: 1,
+    borderColor: Colors.positive + '30',
+    padding: Spacing.md,
+    gap: Spacing.sm,
+  },
+  sparrundaMain: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  sparrundaBadge: {
+    fontSize: 16,
+    color: Colors.positive,
+    flexShrink: 0,
+  },
+  sparrundaNumbers: { flex: 1, gap: 1 },
+  sparrundaTitle: {
+    fontFamily: Typography.semibold,
+    fontSize: 13,
+    color: Colors.text,
+  },
+  sparrundaLine: {
+    fontFamily: Typography.regular,
+    fontSize: 12,
+    color: Colors.muted,
+  },
+  sparrundaHelp: {
+    fontFamily: Typography.bold,
+    fontSize: 13,
+    color: Colors.positive,
+    width: 24,
+    textAlign: 'center',
+  },
+  sparrundaExplanation: {
+    fontFamily: Typography.regular,
+    fontSize: 12,
+    color: Colors.muted,
+    lineHeight: 18,
+    paddingTop: Spacing.xs,
+    borderTopWidth: 1,
+    borderTopColor: Colors.positive + '20',
+  },
+
+  // Filter
   filterBar: {
     marginBottom: Spacing.md,
   },
@@ -180,6 +256,10 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   filterPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    flexShrink: 0,
     paddingHorizontal: Spacing.md,
     paddingVertical: 8,
     borderRadius: Radius.full,
@@ -191,6 +271,12 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.accent,
     borderColor: Colors.accent,
   },
+  filterDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    flexShrink: 0,
+  },
   filterPillText: {
     fontFamily: Typography.medium,
     fontSize: 13,
@@ -199,6 +285,7 @@ const styles = StyleSheet.create({
   filterPillTextActive: {
     color: Colors.white,
   },
+
   list: {
     paddingHorizontal: Spacing.lg,
     paddingBottom: Spacing.xxl,
@@ -230,21 +317,6 @@ const styles = StyleSheet.create({
     fontFamily: Typography.semibold,
     fontSize: 13,
     color: Colors.text,
-  },
-  roundupPill: {
-    alignSelf: 'flex-end',
-    backgroundColor: Colors.positiveSoft,
-    borderRadius: Radius.full,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: 5,
-    marginTop: Spacing.xs,
-    borderWidth: 1,
-    borderColor: Colors.positive + '30',
-  },
-  roundupPillText: {
-    fontFamily: Typography.medium,
-    fontSize: 11,
-    color: Colors.positive,
   },
   txRow: {
     flexDirection: 'row',

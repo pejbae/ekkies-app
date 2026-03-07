@@ -51,7 +51,20 @@
     "roundup_title": "Sparrunda — Avrundad besparing",
     "roundup_body": "Avrunda varje köp till närmaste 50 kr och du kan spara {{weekly}} kr den här veckan — {{monthly}} kr denna månad.",
     "roundup_cta": "Hur fungerar det?",
-    "roundup_explanation": "Varje gång du köper något går skillnaden mellan vad du betalade och nästa 50-kronor till sparande. T.ex. ett kaffe för 43 kr → du sparar 7 kr. Små belopp, stora resultat med tiden. Gör det manuellt för nu — automatiska avrundningar kommer snart."
+    "roundup_explanation": "Varje gång du köper något går skillnaden mellan vad du betalade och nästa 50-kronor till sparande. T.ex. ett kaffe för 43 kr → du sparar 7 kr. Små belopp, stora resultat med tiden. Gör det manuellt för nu — automatiska avrundningar kommer snart.",
+    "manage": "Hantera →",
+    "see_all": "Se alla →",
+    "see_details": "Detaljer →"
+  },
+  "widgets": {
+    "safe_to_spend": "Kvar idag",
+    "sparrunda": "Sparrunda",
+    "budget": "Budget",
+    "recent": "Senaste",
+    "month_health": "Månadsläge",
+    "subscriptions": "Prenumerationer",
+    "customize_title": "Hem-widgets",
+    "customize_subtitle": "Välj vad du vill se på din startsida"
   },
   "budget": {
     "title": "Budget",
@@ -66,11 +79,19 @@
     "save": "Spara",
     "cancel": "Avbryt",
     "add_hint": "Tryck på en kategori för att sätta budget",
-    "paycheck_banner": "Din lön har kommit · {{amount}} kr",
-    "suggest_split": "Fördela din lön →",
+    "paycheck_banner": "Lönen har kommit · {{amount}} kr — fördela den",
+    "suggest_split": "Fördela →",
     "suggestion_intro": "Baserat på förra månadens utgifter, här är ett förslag:",
     "apply_all": "Tillämpa alla",
-    "not_now": "Inte nu"
+    "not_now": "Inte nu",
+    "wizard_paycheck_header": "Din lön: {{amount}} kr",
+    "wizard_needs_label": "Behov förra månaden",
+    "wizard_wants_label": "Övrigt förra månaden",
+    "wizard_target": "Mål: ~70% utgifter · 30% sparande",
+    "wizard_last_month": "Förra månaden: {{amount}} kr",
+    "wizard_suggested": "+10% buffert → {{amount}} kr",
+    "wizard_allocated": "Fördelat: {{allocated}} / {{total}} kr",
+    "wizard_over": "Över budget — minska några belopp"
   },
   "transactions": {
     "title": "Pengar",
@@ -79,16 +100,19 @@
     "monthly_summary_one": "Den här månaden · {{amount}} kr på {{count}} transaktion",
     "monthly_summary_other": "Den här månaden · {{amount}} kr på {{count}} transaktioner",
     "daily_total": "{{amount}} kr",
-    "roundup_day": "Sparrunda: +{{amount}} kr"
+    "roundup_day": "Sparrunda: +{{amount}} kr",
+    "sparrunda_week": "Den här veckan: +{{amount}} kr",
+    "sparrunda_month": "Den här månaden: +{{amount}} kr",
+    "sparrunda_how": "Hur fungerar det?"
   },
   "categories": {
-    "mat": "Mat & dryck",
+    "mat": "Mat",
     "transport": "Transport",
     "noje": "Nöje",
     "halsa": "Hälsa",
     "shopping": "Shopping",
     "hem": "Hem",
-    "prenumerationer": "Prenumerationer",
+    "prenumerationer": "Prenu.",
     "ovrigt": "Övrigt",
     "lon": "Lön"
   },
@@ -105,20 +129,28 @@
     "spending_total": "{{amount}} kr rörliga utgifter den här månaden",
     "subscriptions_title": "Återkommande kostnader",
     "subscriptions_total": "{{amount}} kr / månad",
+    "subscriptions_total_label": "Denna månad",
     "subscriptions_empty": "Inga prenumerationer den här månaden.",
+    "days_left": "dagar till lön",
     "opportunity_title": "Du har utrymme.",
     "opportunity_detail": "{{amount}} kr under budget. Kan gå till sparande — avrundningar kommer snart.",
     "no_budgets_title": "Du har ingen budget ännu.",
     "no_budgets_detail": "Det är okej — men du kan inte förbättra det du inte mäter.",
     "no_budgets_cta": "Sätt en budget",
-    "roundup_title": "Sparrunda-potential",
+    "roundup_title": "Sparrunda — spararpotential",
     "roundup_detail": "Den här månaden hade du kunnat spara {{amount}} kr genom att avrunda varje köp till närmaste 50 kr. Det är {{monthly}} kr projicerat för hela året.",
     "roundup_coming": "Automatiska avrundningar — kommer snart."
   },
   "profile": {
     "title": "Jag",
     "member_since": "Håller koll sedan {{days}} dagar",
-    "member_since_one": "Håller koll sedan 1 dag"
+    "member_since_one": "Håller koll sedan 1 dag",
+    "streak": "Dag {{count}} av uppföljning",
+    "money_in": "↓ {{amount}} kr",
+    "money_out": "↑ {{amount}} kr",
+    "balance_left": "{{amount}} kr kvar",
+    "customize_section": "Hem-widgets",
+    "settings_section": "Inställningar"
   },
   "settings": {
     "title": "Inställningar",
