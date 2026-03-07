@@ -87,6 +87,18 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
   // 10 days ago
   { id: '20', merchant: 'ZARA',              amount: -549,  category: 'shopping',        date: d(10), confirmed: true, emoji: '🛍️' },
   { id: '21', merchant: 'Bio Filmstaden',    amount: -200,  category: 'noje',            date: d(10), confirmed: true, emoji: '🎬' },
+  // 11 days ago
+  { id: '22', merchant: 'Willys',            amount: -378,  category: 'mat',             date: d(11), confirmed: true, emoji: '🛒' },
+  { id: '23', merchant: 'Swish - Hyra',      amount: -4500, category: 'hem',             date: d(11), confirmed: true, emoji: '🏠' },
+  // 12 days ago
+  { id: '24', merchant: 'Åhléns',            amount: -389,  category: 'shopping',        date: d(12), confirmed: true, emoji: '🛍️' },
+  { id: '25', merchant: 'Espresso House',    amount: -67,   category: 'mat',             date: d(12), confirmed: true, emoji: '☕' },
+  // 13 days ago
+  { id: '26', merchant: 'SL Månadskort',     amount: -990,  category: 'transport',       date: d(13), confirmed: true, emoji: '🚇' },
+  { id: '27', merchant: 'Foodora',           amount: -189,  category: 'mat',             date: d(13), confirmed: true, emoji: '🍕' },
+  // 14 days ago
+  { id: '28', merchant: 'Max Hamburgare',    amount: -129,  category: 'mat',             date: d(14), confirmed: true, emoji: '🍔' },
+  { id: '29', merchant: 'Apple Music',       amount: -99,   category: 'prenumerationer', date: d(14), confirmed: true, emoji: '🎵' },
 ];
 
 export const MOCK_USER = {
@@ -154,4 +166,35 @@ export const getBudgetProgress = (
   if (pct >= 90) color = '#FF3B30'; // danger
   else if (pct >= 70) color = '#FF9500'; // warning
   return { pct, color };
+};
+
+// Round each spending transaction up to nearest 50 kr and return total savings potential.
+export const getRoundUpSavings = (
+  transactions: Transaction[],
+  days: number = 7
+): number => {
+  const cutoff = new Date(Date.now() - days * 86400000);
+  return transactions
+    .filter((t) => t.amount < 0 && new Date(t.date) >= cutoff)
+    .reduce((sum, t) => {
+      const abs = Math.abs(t.amount);
+      const roundedUp = Math.ceil(abs / 50) * 50;
+      return sum + (roundedUp - abs);
+    }, 0);
+};
+
+// "Safe to spend today" = daily budget allowance remaining for today.
+// Formula: (total_budget - month_spending) / days_until_payday
+export const getSafeToSpendToday = (
+  transactions: Transaction[],
+  budgets: Partial<Record<Category, number>>,
+  payday: number
+): number => {
+  const DISCRETIONARY: Category[] = ['mat', 'transport', 'noje', 'halsa', 'shopping', 'prenumerationer'];
+  const totalBudget = DISCRETIONARY.reduce((sum, cat) => sum + (budgets[cat] ?? 0), 0);
+  const byCategory = getMonthSpendingByCategory(transactions);
+  const totalSpent = DISCRETIONARY.reduce((sum, cat) => sum + (byCategory[cat] ?? 0), 0);
+  const remaining = totalBudget - totalSpent;
+  const daysLeft = Math.max(getDaysUntilPayday(payday), 1);
+  return Math.round(remaining / daysLeft);
 };

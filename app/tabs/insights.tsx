@@ -10,6 +10,7 @@ import {
   getMonthSpendingByCategory,
   getDaysUntilPayday,
   getBalanceUntilPayday,
+  getRoundUpSavings,
 } from '@/constants/mockData';
 import { useTranslation } from 'react-i18next';
 import { useApp } from '@/context/AppContext';
@@ -88,6 +89,10 @@ export default function Insights() {
     : 0;
 
   const maxCategorySpent = discretionaryRows[0]?.spent ?? 1;
+
+  // Sparrunda round-up savings (this month = 30 days)
+  const monthlyRoundup = Math.round(getRoundUpSavings(MOCK_TRANSACTIONS, 30));
+  const yearlyRoundup = Math.round(monthlyRoundup * 12);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -206,6 +211,25 @@ export default function Insights() {
               </Text>
             </View>
           ) : null}
+
+          {/* ── 5. Sparrunda Round-Up Card ── */}
+          {monthlyRoundup > 0 && (
+            <View style={[styles.card, styles.cardRoundup, Shadow.card]}>
+              <View style={styles.roundupHeader}>
+                <Text style={styles.roundupBadge}>✦</Text>
+                <Text style={styles.sectionTitle}>{t('insights.roundup_title')}</Text>
+              </View>
+              <Text style={styles.cardBody}>
+                {t('insights.roundup_detail', {
+                  amount: monthlyRoundup.toLocaleString('sv-SE'),
+                  monthly: yearlyRoundup.toLocaleString('sv-SE'),
+                })}
+              </Text>
+              <Text style={[styles.cardBody, { color: Colors.positive, fontFamily: Typography.medium }]}>
+                {t('insights.roundup_coming')}
+              </Text>
+            </View>
+          )}
 
         </View>
 
@@ -342,5 +366,20 @@ const styles = StyleSheet.create({
   cardOpportunity: {
     backgroundColor: Colors.positiveSoft,
     borderColor: Colors.positive + '30',
+  },
+
+  // Sparrunda round-up card
+  cardRoundup: {
+    backgroundColor: Colors.positiveSoft,
+    borderColor: Colors.positive + '30',
+  },
+  roundupHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  roundupBadge: {
+    fontSize: 16,
+    color: Colors.positive,
   },
 });

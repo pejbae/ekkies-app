@@ -27,22 +27,31 @@
   "tabs": {
     "home": "Home",
     "budget": "Budget",
-    "spend": "Spend",
+    "spend": "Money",
     "insights": "Insights",
-    "settings": "Settings"
+    "settings": "Settings",
+    "me": "Me"
   },
   "home": {
     "greeting": "Hey, {{name}}",
     "hero_label": "Left until payday",
+    "safe_to_spend_label": "Safe to spend today",
+    "safe_to_spend_sub": "{{amount}} kr left until payday",
     "days_remaining_one": "{{count}} day left",
     "days_remaining_other": "{{count}} days left",
     "payday_label": "Payday {{day}}th",
     "today_label": "Spent today",
+    "today_strip": "Today · {{amount}} kr · {{count}} purchases",
     "budget_section": "Budgets",
+    "budget_used": "{{pct}}% of budget used",
     "see_all_budget": "See all",
     "recent": "Recent",
     "see_all": "See all",
-    "no_budgets": "No budgets set yet"
+    "no_budgets": "No budgets set yet",
+    "roundup_title": "Sparrunda — Round-up savings",
+    "roundup_body": "Round up each purchase to the nearest 50 kr and you could save {{weekly}} kr this week — {{monthly}} kr this month.",
+    "roundup_cta": "How does it work?",
+    "roundup_explanation": "Every time you spend money, the difference between what you paid and the next 50 kr goes into savings. E.g. a 43 kr coffee → you'd save 7 kr. Small amounts, big results over time. For now, do it manually — automatic round-ups are coming soon."
   },
   "budget": {
     "title": "Budget",
@@ -64,11 +73,13 @@
     "not_now": "Not now"
   },
   "transactions": {
-    "title": "Spend",
+    "title": "Money",
     "filter_all": "All",
     "no_transactions": "No transactions yet",
     "monthly_summary_one": "This month · {{amount}} kr across {{count}} transaction",
-    "monthly_summary_other": "This month · {{amount}} kr across {{count}} transactions"
+    "monthly_summary_other": "This month · {{amount}} kr across {{count}} transactions",
+    "daily_total": "{{amount}} kr",
+    "roundup_day": "Round-up: +{{amount}} kr"
   },
   "categories": {
     "mat": "Food & drinks",
@@ -99,7 +110,15 @@
     "opportunity_detail": "{{amount}} kr under budget. Could go to savings — round-ups coming soon.",
     "no_budgets_title": "You don't have a budget yet.",
     "no_budgets_detail": "That's fine — but you can't improve what you don't track.",
-    "no_budgets_cta": "Set a budget"
+    "no_budgets_cta": "Set a budget",
+    "roundup_title": "Sparrunda potential",
+    "roundup_detail": "This month you could have saved {{amount}} kr by rounding up each purchase to the nearest 50 kr. That's {{monthly}} kr projected for the year.",
+    "roundup_coming": "Automatic round-ups — coming soon."
+  },
+  "profile": {
+    "title": "Me",
+    "member_since": "Tracking since {{days}} days",
+    "member_since_one": "Tracking since 1 day"
   },
   "settings": {
     "title": "Settings",

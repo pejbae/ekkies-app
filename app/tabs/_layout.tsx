@@ -5,7 +5,7 @@ import { HomeIcon } from '@/components/icons/HomeIcon';
 import { BudgetIcon } from '@/components/icons/BudgetIcon';
 import { TransactionsIcon } from '@/components/icons/TransactionsIcon';
 import { InsightsIcon } from '@/components/icons/InsightsIcon';
-import { SettingsIcon } from '@/components/icons/SettingsIcon';
+import { ProfileIcon } from '@/components/icons/ProfileIcon';
 
 export default function TabsLayout() {
   const { t } = useTranslation();
@@ -40,17 +40,17 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="budget"
-        options={{
-          title: t('tabs.budget'),
-          tabBarIcon: ({ color }) => <BudgetIcon color={color} size={22} />,
-        }}
-      />
-      <Tabs.Screen
         name="transactions"
         options={{
           title: t('tabs.spend'),
           tabBarIcon: ({ color }) => <TransactionsIcon color={color} size={22} />,
+        }}
+      />
+      <Tabs.Screen
+        name="budget"
+        options={{
+          title: t('tabs.budget'),
+          tabBarIcon: ({ color }) => <BudgetIcon color={color} size={22} />,
         }}
       />
       <Tabs.Screen
@@ -61,17 +61,15 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="settings"
+        name="profile"
         options={{
-          title: t('tabs.settings'),
-          tabBarIcon: ({ color }) => <SettingsIcon color={color} size={22} />,
+          title: t('tabs.me'),
+          tabBarIcon: ({ color }) => <ProfileIcon color={color} size={22} />,
         }}
       />
-      {/* Hide legacy categories route from tab bar */}
-      <Tabs.Screen
-        name="categories"
-        options={{ href: null }}
-      />
+      {/* Hide legacy routes from tab bar */}
+      <Tabs.Screen name="settings" options={{ href: null }} />
+      <Tabs.Screen name="categories" options={{ href: null }} />
     </Tabs>
   );
 }

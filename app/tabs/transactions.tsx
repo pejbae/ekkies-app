@@ -8,6 +8,7 @@ import {
   getCategoryLabel,
   Transaction,
   Category,
+  getRoundUpSavings,
 } from '@/constants/mockData';
 import { useTranslation } from 'react-i18next';
 
@@ -27,15 +28,16 @@ export default function Transactions() {
 
   const monthlyTotal = spending.reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
 
-  // Group by date
-  const grouped: { date: string; items: Transaction[] }[] = [];
+  // Group by date, tracking daily total and raw date for round-up calc
+  const grouped: { date: string; rawDate: string; items: Transaction[] }[] = [];
   spending.forEach((tx) => {
     const dateKey = new Date(tx.date).toLocaleDateString(locale, {
       weekday: 'long', day: 'numeric', month: 'long',
     });
+    const rawDate = new Date(tx.date).toDateString();
     const existing = grouped.find((g) => g.date === dateKey);
     if (existing) existing.items.push(tx);
-    else grouped.push({ date: dateKey, items: [tx] });
+    else grouped.push({ date: dateKey, rawDate, items: [tx] });
   });
 
   return (
@@ -85,14 +87,33 @@ export default function Transactions() {
         ListEmptyComponent={
           <Text style={styles.empty}>{t('transactions.no_transactions')}</Text>
         }
-        renderItem={({ item: group }) => (
-          <View style={styles.group}>
-            <Text style={styles.groupDate}>{group.date}</Text>
-            {group.items.map((tx) => (
-              <TransactionRow key={tx.id} transaction={tx} />
-            ))}
-          </View>
-        )}
+        renderItem={({ item: group }) => {
+          const dailyTotal = group.items.reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
+          const dayTxs = MOCK_TRANSACTIONS.filter(
+            (tx) => tx.amount < 0 && new Date(tx.date).toDateString() === group.rawDate
+          );
+          const dayRoundup = getRoundUpSavings(dayTxs, 999);
+          return (
+            <View style={styles.group}>
+              <View style={styles.groupHeader}>
+                <Text style={styles.groupDate}>{group.date}</Text>
+                <Text style={styles.groupTotal}>
+                  -{t('transactions.daily_total', { amount: dailyTotal.toLocaleString('sv-SE') })}
+                </Text>
+              </View>
+              {group.items.map((tx) => (
+                <TransactionRow key={tx.id} transaction={tx} />
+              ))}
+              {dayRoundup > 0 && (
+                <View style={styles.roundupPill}>
+                  <Text style={styles.roundupPillText}>
+                    {t('transactions.roundup_day', { amount: Math.round(dayRoundup).toLocaleString('sv-SE') })}
+                  </Text>
+                </View>
+              )}
+            </View>
+          );
+        }}
       />
     </SafeAreaView>
   );
@@ -192,13 +213,38 @@ const styles = StyleSheet.create({
   group: {
     marginBottom: Spacing.xl,
   },
+  groupHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.sm,
+  },
   groupDate: {
     fontFamily: Typography.semibold,
     fontSize: 11,
     letterSpacing: 1,
     textTransform: 'uppercase',
     color: Colors.muted,
-    marginBottom: Spacing.sm,
+  },
+  groupTotal: {
+    fontFamily: Typography.semibold,
+    fontSize: 13,
+    color: Colors.text,
+  },
+  roundupPill: {
+    alignSelf: 'flex-end',
+    backgroundColor: Colors.positiveSoft,
+    borderRadius: Radius.full,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 5,
+    marginTop: Spacing.xs,
+    borderWidth: 1,
+    borderColor: Colors.positive + '30',
+  },
+  roundupPillText: {
+    fontFamily: Typography.medium,
+    fontSize: 11,
+    color: Colors.positive,
   },
   txRow: {
     flexDirection: 'row',
