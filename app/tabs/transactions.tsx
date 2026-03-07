@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors, Typography, Spacing, Radius } from '@/constants/theme';
 import {
@@ -7,42 +7,39 @@ import {
   CATEGORY_COLORS,
   getCategoryLabel,
   Transaction,
+  Category,
 } from '@/constants/mockData';
 import { useTranslation } from 'react-i18next';
+
+const FILTER_CATEGORIES: (Category | 'all')[] = [
+  'all', 'mat', 'transport', 'noje', 'halsa', 'shopping', 'prenumerationer',
+];
 
 export default function Transactions() {
   const { t, i18n } = useTranslation();
   const [transactions, setTransactions] = useState(MOCK_TRANSACTIONS);
-
-  const confirm = (id: string) => {
-    setTransactions((prev) =>
-      prev.map((tx) => (tx.id === id ? { ...tx, confirmed: true } : tx))
-    );
-  };
+  const [activeFilter, setActiveFilter] = useState<Category | 'all'>('all');
 
   const locale = i18n.language === 'en' ? 'en-SE' : 'sv-SE';
 
+  const confirm = (id: string) => {
+    setTransactions((prev) => prev.map((tx) => (tx.id === id ? { ...tx, confirmed: true } : tx)));
+  };
+
+  const spending = transactions.filter((tx) =>
+    tx.amount < 0 && (activeFilter === 'all' || tx.category === activeFilter)
+  );
+
   // Group by date
   const grouped: { date: string; items: Transaction[] }[] = [];
-  transactions
-    .filter((tx) => tx.amount < 0)
-    .forEach((tx) => {
-      const dateKey = new Date(tx.date).toLocaleDateString(locale, {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long',
-      });
-      const existing = grouped.find((g) => g.date === dateKey);
-      if (existing) {
-        existing.items.push(tx);
-      } else {
-        grouped.push({ date: dateKey, items: [tx] });
-      }
+  spending.forEach((tx) => {
+    const dateKey = new Date(tx.date).toLocaleDateString(locale, {
+      weekday: 'long', day: 'numeric', month: 'long',
     });
-
-  const unconfirmed = transactions.filter(
-    (tx) => !tx.confirmed && tx.amount < 0
-  ).length;
+    const existing = grouped.find((g) => g.date === dateKey);
+    if (existing) existing.items.push(tx);
+    else grouped.push({ date: dateKey, items: [tx] });
+  });
 
   return (
     <SafeAreaView style={styles.container}>
@@ -50,34 +47,42 @@ export default function Transactions() {
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>{t('transactions.title')}</Text>
-        {unconfirmed > 0 && (
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>{t('transactions.to_review', { count: unconfirmed })}</Text>
-          </View>
-        )}
       </View>
 
-      {/* Swipe hint */}
-      {unconfirmed > 0 && (
-        <View style={styles.hint}>
-          <Text style={styles.hintText}>{t('transactions.confirm_hint')}</Text>
-        </View>
-      )}
+      {/* Filter pills */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.filterScroll}
+        style={styles.filterBar}
+      >
+        {FILTER_CATEGORIES.map((cat) => (
+          <TouchableOpacity
+            key={cat}
+            style={[styles.filterPill, activeFilter === cat && styles.filterPillActive]}
+            onPress={() => setActiveFilter(cat)}
+            activeOpacity={0.75}
+          >
+            <Text style={[styles.filterPillText, activeFilter === cat && styles.filterPillTextActive]}>
+              {cat === 'all' ? t('transactions.filter_all') : getCategoryLabel(cat, t)}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
 
       <FlatList
         data={grouped}
         keyExtractor={(item) => item.date}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.list}
+        ListEmptyComponent={
+          <Text style={styles.empty}>{t('transactions.no_transactions')}</Text>
+        }
         renderItem={({ item: group }) => (
           <View style={styles.group}>
             <Text style={styles.groupDate}>{group.date}</Text>
-            {group.items.map((t) => (
-              <TransactionRow
-                key={t.id}
-                transaction={t}
-                onConfirm={() => confirm(t.id)}
-              />
+            {group.items.map((tx) => (
+              <TransactionRow key={tx.id} transaction={tx} onConfirm={() => confirm(tx.id)} />
             ))}
           </View>
         )}
@@ -94,29 +99,26 @@ function TransactionRow({
   onConfirm: () => void;
 }) {
   const { t } = useTranslation();
-  const catColor = CATEGORY_COLORS[tx.category];
+  const catColor = CATEGORY_COLORS[tx.category] ?? Colors.subtle;
 
   return (
     <View style={[styles.txRow, tx.confirmed && styles.txRowConfirmed]}>
-      {/* Icon */}
-      <View style={[styles.txIcon, { borderColor: catColor + '40' }]}>
-        <Text style={styles.txEmoji}>{tx.emoji}</Text>
+      <View style={[styles.txAvatar, { backgroundColor: catColor + '20' }]}>
+        <Text style={[styles.txAvatarText, { color: catColor }]}>
+          {tx.merchant[0].toUpperCase()}
+        </Text>
       </View>
 
-      {/* Info */}
       <View style={styles.txInfo}>
         <Text style={styles.txMerchant}>{tx.merchant}</Text>
-        <View style={styles.txMeta}>
-          <View style={[styles.catPill, { backgroundColor: catColor + '20' }]}>
-            <View style={[styles.catDot, { backgroundColor: catColor }]} />
-            <Text style={[styles.catLabel, { color: catColor }]}>
-              {getCategoryLabel(tx.category, t)}
-            </Text>
-          </View>
+        <View style={styles.catPill}>
+          <View style={[styles.catDot, { backgroundColor: catColor }]} />
+          <Text style={[styles.catLabel, { color: catColor }]}>
+            {getCategoryLabel(tx.category, t)}
+          </Text>
         </View>
       </View>
 
-      {/* Amount + confirm */}
       <View style={styles.txRight}>
         <Text style={styles.txAmount}>
           -{Math.abs(tx.amount).toLocaleString('sv-SE')} kr
@@ -138,60 +140,61 @@ function TransactionRow({
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.bg,
-  },
+  container: { flex: 1, backgroundColor: Colors.bg },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     paddingHorizontal: Spacing.lg,
     paddingTop: Spacing.md,
-    paddingBottom: Spacing.lg,
+    paddingBottom: Spacing.md,
   },
   title: {
     fontFamily: Typography.display,
     fontSize: 28,
     color: Colors.text,
+    letterSpacing: -0.5,
   },
-  badge: {
-    backgroundColor: Colors.goldDim,
-    borderRadius: Radius.full,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: 4,
-    borderWidth: 1,
-    borderColor: Colors.gold + '40',
-  },
-  badgeText: {
-    fontFamily: Typography.medium,
-    fontSize: 12,
-    color: Colors.gold,
-  },
-  hint: {
-    marginHorizontal: Spacing.lg,
+  filterBar: {
     marginBottom: Spacing.md,
+  },
+  filterScroll: {
+    paddingHorizontal: Spacing.lg,
+    gap: Spacing.sm,
+  },
+  filterPill: {
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 8,
+    borderRadius: Radius.full,
     backgroundColor: Colors.surface,
-    borderRadius: Radius.md,
-    padding: Spacing.md,
     borderWidth: 1,
     borderColor: Colors.border,
   },
-  hintText: {
-    fontFamily: Typography.light,
+  filterPillActive: {
+    backgroundColor: Colors.accent,
+    borderColor: Colors.accent,
+  },
+  filterPillText: {
+    fontFamily: Typography.medium,
     fontSize: 13,
     color: Colors.muted,
-    textAlign: 'center',
+  },
+  filterPillTextActive: {
+    color: Colors.white,
   },
   list: {
     paddingHorizontal: Spacing.lg,
     paddingBottom: Spacing.xxl,
   },
+  empty: {
+    fontFamily: Typography.regular,
+    fontSize: 14,
+    color: Colors.muted,
+    textAlign: 'center',
+    paddingTop: Spacing.xxl,
+  },
   group: {
     marginBottom: Spacing.xl,
   },
   groupDate: {
-    fontFamily: Typography.medium,
+    fontFamily: Typography.semibold,
     fontSize: 11,
     letterSpacing: 1,
     textTransform: 'uppercase',
@@ -211,39 +214,30 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
   },
   txRowConfirmed: {
-    opacity: 0.6,
+    opacity: 0.5,
   },
-  txIcon: {
+  txAvatar: {
     width: 44,
     height: 44,
-    borderRadius: 12,
-    backgroundColor: Colors.surface2,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
   },
-  txEmoji: {
-    fontSize: 20,
+  txAvatarText: {
+    fontFamily: Typography.bold,
+    fontSize: 17,
   },
-  txInfo: {
-    flex: 1,
-  },
+  txInfo: { flex: 1 },
   txMerchant: {
     fontFamily: Typography.medium,
     fontSize: 15,
     color: Colors.text,
-    marginBottom: 6,
-  },
-  txMeta: {
-    flexDirection: 'row',
+    marginBottom: 5,
   },
   catPill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    borderRadius: Radius.full,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
   },
   catDot: {
     width: 5,
@@ -252,14 +246,14 @@ const styles = StyleSheet.create({
   },
   catLabel: {
     fontFamily: Typography.regular,
-    fontSize: 11,
+    fontSize: 12,
   },
   txRight: {
     alignItems: 'flex-end',
     gap: 6,
   },
   txAmount: {
-    fontFamily: Typography.medium,
+    fontFamily: Typography.semibold,
     fontSize: 14,
     color: Colors.text,
   },
@@ -267,15 +261,15 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: Colors.greenDim,
+    backgroundColor: Colors.positiveSoft,
     borderWidth: 1,
-    borderColor: Colors.green,
+    borderColor: Colors.positive,
     alignItems: 'center',
     justifyContent: 'center',
   },
   confirmText: {
     fontSize: 13,
-    color: Colors.green,
+    color: Colors.positive,
   },
   confirmedText: {
     fontSize: 13,

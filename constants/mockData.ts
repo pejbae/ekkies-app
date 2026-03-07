@@ -1,6 +1,5 @@
 // Mock data for development
-// This simulates what the Tink API will return.
-// We build the whole UI against this, then swap in real Tink data later.
+// Simulates what the Tink API will return.
 
 export type Transaction = {
   id: string;
@@ -23,7 +22,6 @@ export type Category =
   | 'ovrigt'
   | 'lon';
 
-// Use getCategoryLabel(cat, t) instead of a static label map — supports i18n.
 export function getCategoryLabel(
   category: string,
   t: (key: string) => string
@@ -31,16 +29,28 @@ export function getCategoryLabel(
   return t(`categories.${category}`);
 }
 
+// Colors that work well on white — vibrant, not banking-ish
 export const CATEGORY_COLORS: Record<Category, string> = {
-  mat: '#4CAF72',
-  transport: '#5B8DD9',
-  noje: '#C8963E',
-  halsa: '#9B72CF',
-  shopping: '#E05555',
-  hem: '#5BA8A0',
-  prenumerationer: '#D4845A',
-  ovrigt: '#6B7D6C',
-  lon: '#4CAF72',
+  mat: '#FF6B6B',
+  transport: '#4ECDC4',
+  noje: '#FF9F43',
+  halsa: '#A29BFE',
+  shopping: '#FF2D7A',
+  hem: '#00B894',
+  prenumerationer: '#FDCB6E',
+  ovrigt: '#B0B0B0',
+  lon: '#00C48C',
+};
+
+// Default monthly budgets per category (in SEK)
+export const MOCK_BUDGETS: Partial<Record<Category, number>> = {
+  mat: 4000,
+  transport: 1500,
+  noje: 2000,
+  halsa: 500,
+  shopping: 2000,
+  prenumerationer: 700,
+  hem: 1000,
 };
 
 export const MOCK_TRANSACTIONS: Transaction[] = [
@@ -116,43 +126,59 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
     confirmed: true,
     emoji: '👕',
   },
+  {
+    id: '9',
+    merchant: 'Netflix',
+    amount: -139,
+    category: 'prenumerationer',
+    date: new Date(Date.now() - 432000000).toISOString(),
+    confirmed: true,
+    emoji: '📺',
+  },
+  {
+    id: '10',
+    merchant: 'Hemköp',
+    amount: -334,
+    category: 'mat',
+    date: new Date(Date.now() - 432000000).toISOString(),
+    confirmed: true,
+    emoji: '🥬',
+  },
 ];
 
 export const MOCK_USER = {
   name: 'Alex',
-  payday: 25, // day of month
+  payday: 25,
   monthlyIncome: 32500,
   currency: 'kr',
 };
 
 // Helpers
+
 export const getTodaySpending = (transactions: Transaction[]): number => {
   const today = new Date().toDateString();
   return transactions
-    .filter(
-      (t) =>
-        new Date(t.date).toDateString() === today && t.amount < 0
-    )
+    .filter((t) => new Date(t.date).toDateString() === today && t.amount < 0)
     .reduce((sum, t) => sum + Math.abs(t.amount), 0);
 };
 
 export const getMonthSpendingByCategory = (
   transactions: Transaction[]
-): Record<Category, number> => {
+): Partial<Record<Category, number>> => {
   const now = new Date();
-  const thisMonth = transactions.filter((t) => {
-    const d = new Date(t.date);
-    return (
-      d.getMonth() === now.getMonth() &&
-      d.getFullYear() === now.getFullYear() &&
-      t.amount < 0
-    );
-  });
-
-  const result = {} as Record<Category, number>;
-  thisMonth.forEach((t) => {
-    result[t.category] = (result[t.category] || 0) + Math.abs(t.amount);
-  });
+  const result: Partial<Record<Category, number>> = {};
+  transactions
+    .filter((t) => {
+      const d = new Date(t.date);
+      return (
+        d.getMonth() === now.getMonth() &&
+        d.getFullYear() === now.getFullYear() &&
+        t.amount < 0
+      );
+    })
+    .forEach((t) => {
+      result[t.category] = (result[t.category] || 0) + Math.abs(t.amount);
+    });
   return result;
 };
 
@@ -170,8 +196,19 @@ export const getBalanceUntilPayday = (
 ): number => {
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const spentThisMonth = transactions
+  const spent = transactions
     .filter((t) => new Date(t.date) >= startOfMonth && t.amount < 0)
     .reduce((sum, t) => sum + Math.abs(t.amount), 0);
-  return monthlyIncome - spentThisMonth;
+  return monthlyIncome - spent;
+};
+
+export const getBudgetProgress = (
+  spent: number,
+  budget: number
+): { pct: number; color: string } => {
+  const pct = budget > 0 ? Math.min((spent / budget) * 100, 100) : 0;
+  let color = '#00C48C'; // positive green
+  if (pct >= 90) color = '#FF3B30'; // danger
+  else if (pct >= 70) color = '#FF9500'; // warning
+  return { pct, color };
 };

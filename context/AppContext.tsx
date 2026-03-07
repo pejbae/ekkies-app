@@ -8,8 +8,11 @@ import {
   setLanguage as storeLanguage,
   isBankConnected,
   setBankConnected as storeBankConnected,
+  getBudgets,
+  saveBudgets,
   Language,
 } from '@/constants/storage';
+import { MOCK_BUDGETS, Category } from '@/constants/mockData';
 import i18n from '@/i18n';
 
 type AppState = {
@@ -18,10 +21,12 @@ type AppState = {
   bankConnected: boolean;
   onboardingComplete: boolean;
   hydrated: boolean;
+  budgets: Record<string, number>;
   setPayday: (day: number) => Promise<void>;
   setLanguage: (lang: Language) => Promise<void>;
   setBankConnected: (connected: boolean) => Promise<void>;
   completeOnboarding: () => Promise<void>;
+  setBudget: (category: string, amount: number) => Promise<void>;
 };
 
 const AppContext = createContext<AppState | null>(null);
@@ -32,19 +37,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [bankConnected, setBankConnectedState] = useState(false);
   const [onboardingComplete, setOnboardingCompleteState] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+  const [budgets, setBudgetsState] = useState<Record<string, number>>(
+    MOCK_BUDGETS as Record<string, number>
+  );
 
   useEffect(() => {
     (async () => {
-      const [pd, lang, bc, oc] = await Promise.all([
+      const [pd, lang, bc, oc, savedBudgets] = await Promise.all([
         getPayday(),
         getLanguage(),
         isBankConnected(),
         isOnboardingComplete(),
+        getBudgets(),
       ]);
       if (pd !== null) setPaydayState(pd);
       setLanguageState(lang);
       setBankConnectedState(bc);
       setOnboardingCompleteState(oc);
+      if (Object.keys(savedBudgets).length > 0) {
+        setBudgetsState(savedBudgets);
+      }
       await i18n.changeLanguage(lang);
       setHydrated(true);
     })();
@@ -71,6 +83,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setOnboardingCompleteState(true);
   };
 
+  const setBudget = async (category: string, amount: number) => {
+    const updated = { ...budgets, [category]: amount };
+    await saveBudgets(updated);
+    setBudgetsState(updated);
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -79,10 +97,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
         bankConnected,
         onboardingComplete,
         hydrated,
+        budgets,
         setPayday,
         setLanguage,
         setBankConnected,
         completeOnboarding,
+        setBudget,
       }}
     >
       {children}

@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Colors, Typography, Spacing, Radius } from '@/constants/theme';
+import { Colors, Typography, Spacing, Radius, Shadow } from '@/constants/theme';
 import { useTranslation } from 'react-i18next';
 import { useApp } from '@/context/AppContext';
 
@@ -17,63 +17,42 @@ export default function Onboarding() {
   return (
     <SafeAreaView style={styles.container}>
 
-      {/* Background glow */}
-      <View style={styles.glow} />
-
-      {/* Logo */}
-      <View style={styles.logoRow}>
-        <View style={styles.logoDot} />
-        <Text style={styles.logoText}>ekkies</Text>
+      {/* Wordmark */}
+      <View style={styles.header}>
+        <Text style={styles.wordmark}>ekkies</Text>
       </View>
 
-      {/* Main content */}
-      <View style={styles.content}>
-        <Text style={styles.eyebrow}>{t('onboarding.eyebrow')}</Text>
-
+      {/* Hero */}
+      <View style={styles.hero}>
         <Text style={styles.headline}>
-          {t('onboarding.headline_1')}{'\n'}
-          <Text style={styles.headlineItalic}>{t('onboarding.headline_italic')}</Text>
-          {'\n'}{t('onboarding.headline_2')}
+          {t('onboarding.headline_line1')}{'\n'}
+          <Text style={styles.headlineAccent}>{t('onboarding.headline_line2')}</Text>
         </Text>
-
         <Text style={styles.body}>{t('onboarding.body')}</Text>
       </View>
 
-      {/* Three value props */}
-      <View style={styles.props}>
-        <ValueProp emoji="🔗" text={t('onboarding.prop_1')} />
-        <ValueProp emoji="📊" text={t('onboarding.prop_2')} />
-        <ValueProp emoji="📱" text={t('onboarding.prop_3')} />
-      </View>
+      <View style={{ flex: 1 }} />
 
       {/* CTA */}
       <View style={styles.cta}>
         <TouchableOpacity
-          style={styles.button}
+          style={styles.buttonPrimary}
           onPress={() => router.push('/onboarding/connect')}
-          activeOpacity={0.85}
+          activeOpacity={0.88}
         >
-          <Text style={styles.buttonText}>{t('onboarding.cta_connect')}</Text>
+          <Text style={styles.buttonPrimaryText}>{t('onboarding.cta_connect')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
+          style={styles.buttonGhost}
           onPress={handleExplore}
           activeOpacity={0.7}
         >
-          <Text style={styles.skipText}>{t('onboarding.cta_explore')}</Text>
+          <Text style={styles.buttonGhostText}>{t('onboarding.cta_explore')}</Text>
         </TouchableOpacity>
       </View>
 
     </SafeAreaView>
-  );
-}
-
-function ValueProp({ emoji, text }: { emoji: string; text: string }) {
-  return (
-    <View style={styles.prop}>
-      <Text style={styles.propEmoji}>{emoji}</Text>
-      <Text style={styles.propText}>{text}</Text>
-    </View>
   );
 }
 
@@ -83,108 +62,64 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.bg,
     paddingHorizontal: Spacing.lg,
   },
-  glow: {
-    position: 'absolute',
-    top: -100,
-    right: -80,
-    width: 280,
-    height: 280,
-    borderRadius: 140,
-    backgroundColor: Colors.greenGlow,
+  header: {
+    paddingTop: Spacing.lg,
+    paddingBottom: Spacing.xxl,
   },
-  logoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginTop: Spacing.lg,
-    marginBottom: Spacing.xxl,
+  wordmark: {
+    fontFamily: Typography.display,
+    fontSize: 22,
+    color: Colors.text,
+    letterSpacing: -0.5,
   },
-  logoDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: Colors.green,
-  },
-  logoText: {
-    fontFamily: Typography.medium,
-    fontSize: 14,
-    letterSpacing: 2,
-    color: Colors.muted,
-    textTransform: 'lowercase',
-  },
-  content: {
-    marginBottom: Spacing.xl,
-  },
-  eyebrow: {
-    fontFamily: Typography.regular,
-    fontSize: 12,
-    letterSpacing: 1.5,
-    textTransform: 'uppercase',
-    color: Colors.green,
-    marginBottom: Spacing.md,
+  hero: {
+    gap: Spacing.lg,
   },
   headline: {
     fontFamily: Typography.display,
-    fontSize: 38,
-    lineHeight: 46,
+    fontSize: 44,
+    lineHeight: 50,
     color: Colors.text,
-    letterSpacing: -0.5,
-    marginBottom: Spacing.md,
+    letterSpacing: -1,
   },
-  headlineItalic: {
-    fontFamily: Typography.displayItalic,
-    color: Colors.green,
+  headlineAccent: {
+    color: Colors.accent,
   },
   body: {
-    fontFamily: Typography.light,
-    fontSize: 16,
+    fontFamily: Typography.regular,
+    fontSize: 17,
     lineHeight: 26,
     color: Colors.muted,
-  },
-  props: {
-    gap: Spacing.sm,
-    marginBottom: Spacing.xl,
-  },
-  prop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.md,
-    backgroundColor: Colors.surface,
-    borderRadius: Radius.md,
-    padding: Spacing.md,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  propEmoji: {
-    fontSize: 18,
-  },
-  propText: {
-    fontFamily: Typography.regular,
-    fontSize: 14,
-    color: Colors.muted,
-    flex: 1,
+    maxWidth: 320,
   },
   cta: {
-    gap: Spacing.md,
+    gap: Spacing.sm,
     paddingBottom: Spacing.lg,
   },
-  button: {
-    backgroundColor: Colors.green,
-    borderRadius: Radius.full,
+  buttonPrimary: {
+    backgroundColor: Colors.accent,
+    borderRadius: Radius.lg,
     paddingVertical: 18,
     alignItems: 'center',
+    ...Shadow.accent,
   },
-  buttonText: {
-    fontFamily: Typography.medium,
+  buttonPrimaryText: {
+    fontFamily: Typography.semibold,
     fontSize: 16,
-    color: Colors.bg,
-    letterSpacing: 0.3,
+    color: Colors.white,
+    letterSpacing: 0.2,
   },
-  skipText: {
-    fontFamily: Typography.regular,
-    fontSize: 14,
-    color: Colors.muted,
-    textAlign: 'center',
-    paddingVertical: Spacing.sm,
+  buttonGhost: {
+    borderRadius: Radius.lg,
+    paddingVertical: 18,
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: Colors.border,
+  },
+  buttonGhostText: {
+    fontFamily: Typography.semibold,
+    fontSize: 16,
+    color: Colors.text,
+    letterSpacing: 0.2,
   },
 });

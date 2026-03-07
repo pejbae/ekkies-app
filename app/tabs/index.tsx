@@ -11,13 +11,14 @@ import {
   getDaysUntilPayday,
   getBalanceUntilPayday,
   getMonthSpendingByCategory,
+  getBudgetProgress,
 } from '@/constants/mockData';
 import { useTranslation } from 'react-i18next';
 import { useApp } from '@/context/AppContext';
 
 export default function Home() {
-  const { t, i18n } = useTranslation();
-  const { payday } = useApp();
+  const { t } = useTranslation();
+  const { payday, budgets } = useApp();
 
   const effectivePayday = payday ?? MOCK_USER.payday;
   const todaySpending = getTodaySpending(MOCK_TRANSACTIONS);
@@ -25,19 +26,16 @@ export default function Home() {
   const balance = getBalanceUntilPayday(MOCK_TRANSACTIONS, MOCK_USER.monthlyIncome);
   const byCategory = getMonthSpendingByCategory(MOCK_TRANSACTIONS);
 
-  // Top 3 categories by spend
-  const topCategories = Object.entries(byCategory)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 3);
+  const budgetPills = Object.entries(budgets)
+    .filter(([cat]) => cat !== 'lon' && cat !== 'hem')
+    .map(([cat, budget]) => {
+      const spent = byCategory[cat as keyof typeof byCategory] ?? 0;
+      const { pct, color } = getBudgetProgress(spent, budget as number);
+      return { cat, pct, color };
+    })
+    .sort((a, b) => b.pct - a.pct);
 
-  const maxCategorySpend = topCategories[0]?.[1] ?? 1;
-
-  // Recent transactions (non-income)
-  const recent = MOCK_TRANSACTIONS
-    .filter((tx) => tx.amount < 0)
-    .slice(0, 3);
-
-  const locale = i18n.language === 'en' ? 'en-SE' : 'sv-SE';
+  const recent = MOCK_TRANSACTIONS.filter((tx) => tx.amount < 0).slice(0, 5);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -45,126 +43,101 @@ export default function Home() {
 
         {/* Header */}
         <View style={styles.header}>
-          <View>
-            <Text style={styles.greeting}>{t('home.greeting', { name: MOCK_USER.name })}</Text>
-            <Text style={styles.date}>
-              {new Date().toLocaleDateString(locale, {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long',
-              })}
-            </Text>
-          </View>
-          <TouchableOpacity style={styles.avatar} onPress={() => router.push('/tabs/settings')}>
-            <Text style={styles.avatarText}>
-              {MOCK_USER.name[0].toUpperCase()}
-            </Text>
+          <Text style={styles.greeting}>{t('home.greeting', { name: MOCK_USER.name })}</Text>
+          <TouchableOpacity
+            style={styles.avatar}
+            onPress={() => router.push('/tabs/settings')}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.avatarText}>{MOCK_USER.name[0].toUpperCase()}</Text>
           </TouchableOpacity>
         </View>
 
-        {/* HERO: Kvar till lön */}
-        <View style={styles.heroCard}>
-          <View style={styles.glow} />
-
+        {/* Hero card */}
+        <View style={[styles.heroCard, Shadow.card]}>
           <Text style={styles.heroLabel}>{t('home.hero_label')}</Text>
           <Text style={styles.heroAmount}>
             {balance.toLocaleString('sv-SE')} kr
           </Text>
-
-          {/* Days bar */}
-          <View style={styles.daysRow}>
-            <Text style={styles.daysText}>
-              {t('home.days_remaining', { count: daysUntil })}
+          <View style={styles.heroMeta}>
+            <Text style={styles.heroMetaText}>
+              {t(`home.days_remaining_${daysUntil === 1 ? 'one' : 'other'}`, { count: daysUntil })}
             </Text>
-            <Text style={styles.paydayText}>{t('home.payday_label', { day: effectivePayday })}</Text>
-          </View>
-          <View style={styles.progressBar}>
-            <View
-              style={[
-                styles.progressFill,
-                { width: `${Math.max(5, 100 - (daysUntil / 30) * 100)}%` },
-              ]}
-            />
+            <Text style={styles.heroMetaText}>
+              {t('home.payday_label', { day: effectivePayday })}
+            </Text>
           </View>
         </View>
 
-        {/* Spenderat idag */}
-        <View style={styles.todayCard}>
-          <Text style={styles.todayLabel}>{t('home.today_label')}</Text>
-          <Text style={styles.todayAmount}>
-            {todaySpending.toLocaleString('sv-SE')} kr
-          </Text>
-        </View>
-
-        {/* Weekly insight */}
-        <View style={styles.insightCard}>
-          <Text style={styles.insightEmoji}>✦</Text>
-          <View style={styles.insightBody}>
-            <Text style={styles.insightTitle}>{t('home.insight_title')}</Text>
-            <Text style={styles.insightText}>{t('home.insight_text')}</Text>
+        {/* Metric row */}
+        <View style={styles.metricRow}>
+          <View style={[styles.metricCard, Shadow.card]}>
+            <Text style={styles.metricLabel}>{t('home.today_label')}</Text>
+            <Text style={styles.metricValue}>
+              {todaySpending.toLocaleString('sv-SE')} kr
+            </Text>
+          </View>
+          <View style={[styles.metricCard, Shadow.card]}>
+            <Text style={styles.metricLabel}>
+              {t(`home.days_remaining_${daysUntil === 1 ? 'one' : 'other'}`, { count: daysUntil })}
+            </Text>
+            <Text style={[styles.metricValue, { fontSize: 28 }]}>{daysUntil}d</Text>
           </View>
         </View>
 
-        {/* Top categories */}
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>{t('home.this_month')}</Text>
-          {topCategories.map(([cat, amount]) => (
-            <View key={cat} style={styles.categoryRow}>
-              <View style={styles.categoryInfo}>
-                <View
-                  style={[
-                    styles.categoryDot,
-                    { backgroundColor: CATEGORY_COLORS[cat as keyof typeof CATEGORY_COLORS] },
-                  ]}
-                />
-                <Text style={styles.categoryName}>
-                  {getCategoryLabel(cat, t)}
-                </Text>
-              </View>
-              <View style={styles.categoryBarWrap}>
-                <View style={styles.categoryBarBg}>
-                  <View
-                    style={[
-                      styles.categoryBarFill,
-                      {
-                        width: `${(amount / maxCategorySpend) * 100}%`,
-                        backgroundColor: CATEGORY_COLORS[cat as keyof typeof CATEGORY_COLORS],
-                      },
-                    ]}
-                  />
-                </View>
-              </View>
-              <Text style={styles.categoryAmount}>
-                {amount.toLocaleString('sv-SE')} kr
-              </Text>
+        {/* Budget snapshot */}
+        {budgetPills.length > 0 && (
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionLabel}>{t('home.budget_section')}</Text>
+              <TouchableOpacity onPress={() => router.push('/tabs/budget')} activeOpacity={0.7}>
+                <Text style={styles.seeAll}>{t('home.see_all_budget')}</Text>
+              </TouchableOpacity>
             </View>
-          ))}
-        </View>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.pillScroll}>
+              {budgetPills.map(({ cat, pct, color }) => (
+                <View key={cat} style={[styles.budgetPill, { borderColor: color + '50' }]}>
+                  <View style={styles.budgetPillBar}>
+                    <View style={[styles.budgetPillFill, { width: `${pct}%`, backgroundColor: color }]} />
+                  </View>
+                  <Text style={styles.budgetPillLabel}>{getCategoryLabel(cat, t)}</Text>
+                  <Text style={[styles.budgetPillPct, { color }]}>{Math.round(pct)}%</Text>
+                </View>
+              ))}
+            </ScrollView>
+          </View>
+        )}
 
         {/* Recent transactions */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionLabel}>{t('home.recent')}</Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push('/tabs/transactions')} activeOpacity={0.7}>
               <Text style={styles.seeAll}>{t('home.see_all')}</Text>
             </TouchableOpacity>
           </View>
-          {recent.map((tx) => (
-            <View key={tx.id} style={styles.txRow}>
-              <View style={styles.txIcon}>
-                <Text style={styles.txEmoji}>{tx.emoji}</Text>
-              </View>
-              <View style={styles.txInfo}>
-                <Text style={styles.txMerchant}>{tx.merchant}</Text>
-                <Text style={styles.txCategory}>
-                  {getCategoryLabel(tx.category, t)}
-                </Text>
-              </View>
-              <Text style={styles.txAmount}>
-                -{Math.abs(tx.amount).toLocaleString('sv-SE')} kr
-              </Text>
-            </View>
-          ))}
+          <View style={[styles.txList, Shadow.card]}>
+            {recent.map((tx, i) => {
+              const catColor = CATEGORY_COLORS[tx.category] ?? Colors.subtle;
+              return (
+                <View key={tx.id} style={[styles.txRow, i < recent.length - 1 && styles.txRowBorder]}>
+                  <View style={[styles.txAvatar, { backgroundColor: catColor + '20' }]}>
+                    <Text style={[styles.txAvatarText, { color: catColor }]}>
+                      {tx.merchant[0].toUpperCase()}
+                    </Text>
+                  </View>
+                  <View style={styles.txInfo}>
+                    <Text style={styles.txMerchant}>{tx.merchant}</Text>
+                    <Text style={styles.txCategory}>{getCategoryLabel(tx.category, t)}</Text>
+                  </View>
+                  <Text style={styles.txAmount}>
+                    -{Math.abs(tx.amount).toLocaleString('sv-SE')} kr
+                  </Text>
+                </View>
+              );
+            })}
+          </View>
         </View>
 
         <View style={{ height: Spacing.xxl }} />
@@ -174,10 +147,7 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.bg,
-  },
+  container: { flex: 1, backgroundColor: Colors.bg },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -187,155 +157,86 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.lg,
   },
   greeting: {
-    fontFamily: Typography.medium,
-    fontSize: 18,
+    fontFamily: Typography.bold,
+    fontSize: 20,
     color: Colors.text,
-    marginBottom: 2,
-  },
-  date: {
-    fontFamily: Typography.light,
-    fontSize: 13,
-    color: Colors.muted,
-    textTransform: 'capitalize',
+    letterSpacing: -0.3,
   },
   avatar: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: Colors.greenDim,
+    backgroundColor: Colors.accentSoft,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: Colors.green,
+    borderWidth: 1.5,
+    borderColor: Colors.accent + '30',
   },
   avatarText: {
-    fontFamily: Typography.medium,
+    fontFamily: Typography.bold,
     fontSize: 16,
-    color: Colors.green,
+    color: Colors.accent,
   },
-
-  // Hero card
   heroCard: {
-    backgroundColor: Colors.surface2,
+    backgroundColor: Colors.surface,
     borderRadius: Radius.xl,
     padding: Spacing.xl,
     marginHorizontal: Spacing.lg,
     marginBottom: Spacing.md,
     borderWidth: 1,
     borderColor: Colors.border,
-    overflow: 'hidden',
-    ...Shadow.card,
-  },
-  glow: {
-    position: 'absolute',
-    top: -40,
-    right: -40,
-    width: 180,
-    height: 180,
-    borderRadius: 90,
-    backgroundColor: Colors.greenGlow,
   },
   heroLabel: {
-    fontFamily: Typography.regular,
-    fontSize: 12,
-    letterSpacing: 1.5,
+    fontFamily: Typography.semibold,
+    fontSize: 11,
+    letterSpacing: 1,
     textTransform: 'uppercase',
-    color: Colors.green,
+    color: Colors.muted,
     marginBottom: Spacing.sm,
   },
   heroAmount: {
     fontFamily: Typography.display,
-    fontSize: 44,
+    fontSize: 48,
+    lineHeight: 54,
     color: Colors.text,
-    letterSpacing: -1,
-    marginBottom: Spacing.lg,
+    letterSpacing: -2,
+    marginBottom: Spacing.md,
   },
-  daysRow: {
+  heroMeta: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: Spacing.sm,
   },
-  daysText: {
+  heroMetaText: {
     fontFamily: Typography.regular,
     fontSize: 13,
     color: Colors.muted,
   },
-  paydayText: {
-    fontFamily: Typography.regular,
-    fontSize: 13,
-    color: Colors.muted,
+  metricRow: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    paddingHorizontal: Spacing.lg,
+    marginBottom: Spacing.lg,
   },
-  progressBar: {
-    height: 4,
-    backgroundColor: Colors.border,
-    borderRadius: 2,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: Colors.green,
-    borderRadius: 2,
-  },
-
-  // Today card
-  todayCard: {
+  metricCard: {
+    flex: 1,
     backgroundColor: Colors.surface,
     borderRadius: Radius.lg,
-    padding: Spacing.lg,
-    marginHorizontal: Spacing.lg,
-    marginBottom: Spacing.md,
+    padding: Spacing.md,
     borderWidth: 1,
     borderColor: Colors.border,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
   },
-  todayLabel: {
+  metricLabel: {
     fontFamily: Typography.regular,
-    fontSize: 14,
+    fontSize: 12,
     color: Colors.muted,
+    marginBottom: 4,
   },
-  todayAmount: {
-    fontFamily: Typography.display,
+  metricValue: {
+    fontFamily: Typography.bold,
     fontSize: 22,
     color: Colors.text,
+    letterSpacing: -0.5,
   },
-
-  // Insight card
-  insightCard: {
-    backgroundColor: Colors.greenGlow,
-    borderRadius: Radius.lg,
-    padding: Spacing.lg,
-    marginHorizontal: Spacing.lg,
-    marginBottom: Spacing.lg,
-    borderWidth: 1,
-    borderColor: Colors.greenDim,
-    flexDirection: 'row',
-    gap: Spacing.md,
-    alignItems: 'flex-start',
-  },
-  insightEmoji: {
-    fontSize: 18,
-    color: Colors.green,
-  },
-  insightBody: {
-    flex: 1,
-  },
-  insightTitle: {
-    fontFamily: Typography.medium,
-    fontSize: 13,
-    color: Colors.green,
-    marginBottom: 4,
-    letterSpacing: 0.5,
-  },
-  insightText: {
-    fontFamily: Typography.light,
-    fontSize: 14,
-    color: Colors.muted,
-    lineHeight: 20,
-  },
-
-  // Sections
   section: {
     paddingHorizontal: Spacing.lg,
     marginBottom: Spacing.xl,
@@ -347,89 +248,79 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   sectionLabel: {
-    fontFamily: Typography.medium,
+    fontFamily: Typography.semibold,
     fontSize: 11,
-    letterSpacing: 1.2,
+    letterSpacing: 1,
     textTransform: 'uppercase',
     color: Colors.muted,
-    marginBottom: Spacing.md,
   },
   seeAll: {
-    fontFamily: Typography.regular,
+    fontFamily: Typography.semibold,
     fontSize: 13,
-    color: Colors.green,
+    color: Colors.accent,
   },
-
-  // Category rows
-  categoryRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  pillScroll: {
     gap: Spacing.sm,
-    marginBottom: Spacing.md,
+    paddingRight: Spacing.lg,
   },
-  categoryInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
+  budgetPill: {
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.lg,
+    padding: Spacing.md,
     width: 120,
+    borderWidth: 1.5,
+    gap: 6,
   },
-  categoryDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  categoryName: {
-    fontFamily: Typography.regular,
-    fontSize: 13,
-    color: Colors.muted,
-    flex: 1,
-  },
-  categoryBarWrap: {
-    flex: 1,
-  },
-  categoryBarBg: {
+  budgetPillBar: {
     height: 4,
-    backgroundColor: Colors.border,
+    backgroundColor: Colors.surface2,
     borderRadius: 2,
     overflow: 'hidden',
   },
-  categoryBarFill: {
+  budgetPillFill: {
     height: '100%',
     borderRadius: 2,
   },
-  categoryAmount: {
+  budgetPillLabel: {
     fontFamily: Typography.medium,
-    fontSize: 13,
+    fontSize: 12,
     color: Colors.text,
-    width: 80,
-    textAlign: 'right',
   },
-
-  // Transaction rows
+  budgetPillPct: {
+    fontFamily: Typography.bold,
+    fontSize: 16,
+    letterSpacing: -0.3,
+  },
+  txList: {
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.lg,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    overflow: 'hidden',
+  },
   txRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.md,
-    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 14,
+  },
+  txRowBorder: {
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
-  txIcon: {
+  txAvatar: {
     width: 40,
     height: 40,
-    borderRadius: 12,
-    backgroundColor: Colors.surface,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: Colors.border,
   },
-  txEmoji: {
-    fontSize: 18,
+  txAvatarText: {
+    fontFamily: Typography.bold,
+    fontSize: 16,
   },
-  txInfo: {
-    flex: 1,
-  },
+  txInfo: { flex: 1 },
   txMerchant: {
     fontFamily: Typography.medium,
     fontSize: 14,
@@ -437,12 +328,12 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   txCategory: {
-    fontFamily: Typography.light,
+    fontFamily: Typography.regular,
     fontSize: 12,
     color: Colors.muted,
   },
   txAmount: {
-    fontFamily: Typography.medium,
+    fontFamily: Typography.semibold,
     fontSize: 14,
     color: Colors.text,
   },

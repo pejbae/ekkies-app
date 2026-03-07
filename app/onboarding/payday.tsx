@@ -1,127 +1,95 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import {
+  View, Text, StyleSheet, TouchableOpacity,
+  TextInput, KeyboardAvoidingView, Platform,
+} from 'react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Colors, Typography, Spacing, Radius } from '@/constants/theme';
+import { Colors, Typography, Spacing, Radius, Shadow } from '@/constants/theme';
 import { useTranslation } from 'react-i18next';
 import { useApp } from '@/context/AppContext';
-
-const COMMON_DAYS = [1, 15, 20, 24, 25, 26, 28];
-const ALL_DAYS = Array.from({ length: 28 }, (_, i) => i + 1);
 
 export default function Payday() {
   const { t } = useTranslation();
   const { setPayday, completeOnboarding } = useApp();
-  const [selected, setSelected] = useState<number | null>(25);
+  const [changing, setChanging] = useState(false);
+  const [inputVal, setInputVal] = useState('');
+  const [payday, setLocalPayday] = useState(25);
 
-  const handleContinue = async () => {
-    if (selected) {
-      await setPayday(selected);
-    }
-    await completeOnboarding();
-    router.replace('/tabs');
+  const handleConfirmChange = () => {
+    const n = parseInt(inputVal, 10);
+    if (n >= 1 && n <= 28) setLocalPayday(n);
+    setChanging(false);
+    setInputVal('');
   };
 
-  const handleSkip = async () => {
+  const handleContinue = async () => {
+    await setPayday(payday);
     await completeOnboarding();
     router.replace('/tabs');
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <SafeAreaView style={styles.container}>
 
-        <TouchableOpacity
-          style={styles.back}
-          onPress={() => router.back()}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.backText}>{t('payday.back')}</Text>
+        <TouchableOpacity style={styles.back} onPress={() => router.back()} activeOpacity={0.7}>
+          <Text style={styles.backText}>{t('connect.back')}</Text>
         </TouchableOpacity>
 
-        <View style={styles.header}>
-          <Text style={styles.step}>{t('payday.step')}</Text>
+        <View style={styles.content}>
           <Text style={styles.headline}>{t('payday.headline')}</Text>
-          <Text style={styles.body}>{t('payday.body')}</Text>
-        </View>
 
-        {/* Common days */}
-        <Text style={styles.sectionLabel}>{t('payday.common_label')}</Text>
-        <View style={styles.commonGrid}>
-          {COMMON_DAYS.map((day) => (
-            <TouchableOpacity
-              key={day}
-              style={[
-                styles.dayCard,
-                selected === day && styles.dayCardSelected,
-              ]}
-              onPress={() => setSelected(day)}
-              activeOpacity={0.75}
-            >
-              <Text style={[
-                styles.dayNum,
-                selected === day && styles.dayNumSelected,
-              ]}>
-                {day}:e
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        {/* All days picker */}
-        <Text style={styles.sectionLabel}>{t('payday.all_label')}</Text>
-        <View style={styles.allDaysGrid}>
-          {ALL_DAYS.map((day) => (
-            <TouchableOpacity
-              key={day}
-              style={[
-                styles.smallDay,
-                selected === day && styles.smallDaySelected,
-              ]}
-              onPress={() => setSelected(day)}
-              activeOpacity={0.75}
-            >
-              <Text style={[
-                styles.smallDayText,
-                selected === day && styles.smallDayTextSelected,
-              ]}>
-                {day}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        {/* Selected preview */}
-        {selected && (
-          <View style={styles.preview}>
-            <Text style={styles.previewEmoji}>📅</Text>
-            <Text style={styles.previewText}>
-              {t('payday.preview', { day: selected })}
-            </Text>
+          <View style={styles.dayDisplay}>
+            <Text style={styles.dayNumber}>{payday}</Text>
+            <Text style={styles.daySuffix}>{t('payday.day_suffix')}</Text>
           </View>
-        )}
 
-        {/* CTA */}
+          <Text style={styles.body}>{t('payday.body')}</Text>
+
+          {changing ? (
+            <View style={styles.changeRow}>
+              <TextInput
+                style={styles.input}
+                value={inputVal}
+                onChangeText={setInputVal}
+                placeholder={t('payday.change_label')}
+                placeholderTextColor={Colors.subtle}
+                keyboardType="number-pad"
+                maxLength={2}
+                autoFocus
+              />
+              <TouchableOpacity
+                style={styles.confirmBtn}
+                onPress={handleConfirmChange}
+                activeOpacity={0.85}
+              >
+                <Text style={styles.confirmBtnText}>{t('payday.confirm_change')}</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity onPress={() => setChanging(true)} activeOpacity={0.7}>
+              <Text style={styles.changeLink}>{t('payday.change')}</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        <View style={{ flex: 1 }} />
+
         <TouchableOpacity
-          style={[styles.button, !selected && styles.buttonDisabled]}
+          style={styles.buttonPrimary}
           onPress={handleContinue}
-          activeOpacity={0.85}
-          disabled={!selected}
+          activeOpacity={0.88}
         >
-          <Text style={styles.buttonText}>{t('payday.cta')}</Text>
+          <Text style={styles.buttonPrimaryText}>{t('payday.cta')}</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.skipButton}
-          onPress={handleSkip}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.skipText}>{t('payday.skip')}</Text>
-        </TouchableOpacity>
-
-        <View style={{ height: Spacing.xxl }} />
-      </ScrollView>
-    </SafeAreaView>
+        <View style={{ height: Spacing.lg }} />
+      </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -133,147 +101,94 @@ const styles = StyleSheet.create({
   },
   back: {
     marginTop: Spacing.md,
-    marginBottom: Spacing.lg,
+    marginBottom: Spacing.xxl,
   },
   backText: {
-    fontFamily: Typography.regular,
+    fontFamily: Typography.medium,
     fontSize: 14,
     color: Colors.muted,
   },
-  header: {
-    marginBottom: Spacing.xl,
-  },
-  step: {
-    fontFamily: Typography.regular,
-    fontSize: 11,
-    letterSpacing: 1.5,
-    textTransform: 'uppercase',
-    color: Colors.green,
-    marginBottom: Spacing.sm,
+  content: {
+    gap: Spacing.lg,
   },
   headline: {
     fontFamily: Typography.display,
-    fontSize: 40,
-    lineHeight: 48,
+    fontSize: 34,
+    lineHeight: 42,
     color: Colors.text,
     letterSpacing: -0.5,
-    marginBottom: Spacing.md,
+  },
+  dayDisplay: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 4,
+  },
+  dayNumber: {
+    fontFamily: Typography.display,
+    fontSize: 96,
+    lineHeight: 100,
+    color: Colors.accent,
+    letterSpacing: -4,
+  },
+  daySuffix: {
+    fontFamily: Typography.bold,
+    fontSize: 28,
+    color: Colors.accent,
+    marginBottom: 12,
   },
   body: {
-    fontFamily: Typography.light,
-    fontSize: 15,
-    lineHeight: 24,
-    color: Colors.muted,
-  },
-  sectionLabel: {
-    fontFamily: Typography.medium,
-    fontSize: 11,
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
-    color: Colors.muted,
-    marginBottom: Spacing.md,
-  },
-  commonGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.sm,
-    marginBottom: Spacing.xl,
-  },
-  dayCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: Radius.md,
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing.lg,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  dayCardSelected: {
-    backgroundColor: Colors.greenDim,
-    borderColor: Colors.green,
-  },
-  dayNum: {
-    fontFamily: Typography.medium,
-    fontSize: 16,
-    color: Colors.muted,
-  },
-  dayNumSelected: {
-    color: Colors.green,
-  },
-  allDaysGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 6,
-    marginBottom: Spacing.xl,
-  },
-  smallDay: {
-    width: 44,
-    height: 44,
-    borderRadius: Radius.sm,
-    backgroundColor: Colors.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  smallDaySelected: {
-    backgroundColor: Colors.greenDim,
-    borderColor: Colors.green,
-  },
-  smallDayText: {
     fontFamily: Typography.regular,
+    fontSize: 15,
+    lineHeight: 23,
+    color: Colors.muted,
+  },
+  changeLink: {
+    fontFamily: Typography.semibold,
     fontSize: 14,
-    color: Colors.muted,
+    color: Colors.accent,
+    textDecorationLine: 'underline',
   },
-  smallDayTextSelected: {
-    color: Colors.green,
-    fontFamily: Typography.medium,
-  },
-  preview: {
+  changeRow: {
     flexDirection: 'row',
-    alignItems: 'center',
     gap: Spacing.sm,
-    backgroundColor: Colors.greenGlow,
-    borderWidth: 1,
-    borderColor: Colors.greenDim,
+    alignItems: 'center',
+  },
+  input: {
+    flex: 1,
+    borderWidth: 1.5,
+    borderColor: Colors.accent,
     borderRadius: Radius.md,
-    padding: Spacing.md,
-    marginBottom: Spacing.xl,
-  },
-  previewEmoji: {
-    fontSize: 18,
-  },
-  previewText: {
-    fontFamily: Typography.regular,
-    fontSize: 15,
-    color: Colors.muted,
-  },
-  previewHighlight: {
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 12,
     fontFamily: Typography.medium,
-    color: Colors.green,
+    fontSize: 20,
+    color: Colors.text,
+    textAlign: 'center',
   },
-  button: {
-    backgroundColor: Colors.green,
-    borderRadius: Radius.full,
+  confirmBtn: {
+    backgroundColor: Colors.surface2,
+    borderRadius: Radius.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  confirmBtnText: {
+    fontFamily: Typography.semibold,
+    fontSize: 14,
+    color: Colors.text,
+  },
+  buttonPrimary: {
+    backgroundColor: Colors.accent,
+    borderRadius: Radius.lg,
     paddingVertical: 18,
     alignItems: 'center',
-    marginBottom: Spacing.md,
+    ...Shadow.accent,
   },
-  buttonDisabled: {
-    opacity: 0.4,
-  },
-  buttonText: {
-    fontFamily: Typography.medium,
+  buttonPrimaryText: {
+    fontFamily: Typography.semibold,
     fontSize: 16,
-    color: Colors.bg,
-    letterSpacing: 0.3,
-  },
-  skipButton: {
-    alignItems: 'center',
-    paddingVertical: Spacing.sm,
-  },
-  skipText: {
-    fontFamily: Typography.regular,
-    fontSize: 14,
-    color: Colors.muted,
+    color: Colors.white,
+    letterSpacing: 0.2,
   },
 });

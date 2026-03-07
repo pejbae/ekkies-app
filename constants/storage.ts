@@ -6,6 +6,7 @@ const KEYS = {
   PAYDAY: 'ekkies_payday',
   LANGUAGE: 'ekkies_language',
   BANK_CONNECTED: 'ekkies_bank_connected',
+  BUDGETS: 'ekkies_budgets',
 };
 
 const SECURE_KEYS = {
@@ -44,7 +45,7 @@ export async function setPayday(day: number): Promise<void> {
 export async function getLanguage(): Promise<Language> {
   const v = await AsyncStorage.getItem(KEYS.LANGUAGE);
   if (v === 'en' || v === 'sv') return v;
-  return 'sv'; // default to Swedish
+  return 'sv';
 }
 
 export async function setLanguage(lang: Language): Promise<void> {
@@ -60,6 +61,22 @@ export async function isBankConnected(): Promise<boolean> {
 
 export async function setBankConnected(connected: boolean): Promise<void> {
   await AsyncStorage.setItem(KEYS.BANK_CONNECTED, connected ? 'true' : 'false');
+}
+
+// Budgets
+
+export async function getBudgets(): Promise<Record<string, number>> {
+  const v = await AsyncStorage.getItem(KEYS.BUDGETS);
+  if (!v) return {};
+  try {
+    return JSON.parse(v);
+  } catch {
+    return {};
+  }
+}
+
+export async function saveBudgets(budgets: Record<string, number>): Promise<void> {
+  await AsyncStorage.setItem(KEYS.BUDGETS, JSON.stringify(budgets));
 }
 
 // Tink tokens (secure)

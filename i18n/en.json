@@ -1,60 +1,67 @@
 {
   "onboarding": {
-    "eyebrow": "Your money. Finally clear.",
-    "headline_1": "See what's",
-    "headline_italic": "actually happening",
-    "headline_2": "with your money.",
-    "body": "Ekkies connects to your bank and shows you exactly what you spend — calm, clear, without judgment.",
-    "prop_1": "Connect your bank in under a minute",
-    "prop_2": "See your spending sorted automatically",
-    "prop_3": "Money until payday — always on your lock screen",
-    "cta_connect": "Connect your bank →",
-    "cta_explore": "Explore without bank"
+    "headline_line1": "Your money,",
+    "headline_line2": "finally clear.",
+    "body": "See exactly where your money goes. No judgment, no jargon — just clarity.",
+    "cta_connect": "Connect your bank",
+    "cta_explore": "Explore first"
   },
   "connect": {
-    "step": "Step 1 of 2",
     "headline": "Connect\nyour bank.",
-    "body": "We connect securely via open banking standard (PSD2). We never see your password or account details.",
-    "security_note": "Bank connection powered by Tink — the same standard all EU banks use.",
+    "body": "We connect securely via open banking (PSD2). We never see your password or account details.",
+    "security_note": "Bank connection powered by Tink — the EU open banking standard.",
     "list_label": "Choose your bank",
-    "skip": "Add bank later",
-    "back": "← Back"
+    "skip": "Skip for now",
+    "back": "Back",
+    "continue": "Continue"
   },
   "payday": {
-    "step": "Step 2 of 2",
-    "headline": "When do\nyou get paid?",
-    "body": "We use this to show how much you have left until your next payday. You can change this at any time.",
-    "common_label": "Common paydays",
-    "all_label": "Or choose a date",
-    "preview": "You get paid on the {{day}}th every month",
-    "cta": "Done — show my overview →",
-    "skip": "Skip",
-    "back": "← Back"
+    "headline": "We've set your\npayday to the",
+    "day_suffix": "th",
+    "body": "That's the most common payday in Sweden. You can change it anytime in settings.",
+    "cta": "Looks right",
+    "change": "Change it",
+    "change_label": "Enter your payday (1–28)",
+    "confirm_change": "Confirm"
   },
   "tabs": {
     "home": "Home",
-    "transactions": "Transactions",
-    "categories": "Categories",
+    "budget": "Budget",
+    "spend": "Spend",
     "insights": "Insights",
     "settings": "Settings"
   },
   "home": {
-    "greeting": "Hey, {{name}} 👋",
+    "greeting": "Hey, {{name}}",
     "hero_label": "Left until payday",
     "days_remaining_one": "{{count}} day left",
     "days_remaining_other": "{{count}} days left",
     "payday_label": "Payday {{day}}th",
     "today_label": "Spent today",
-    "insight_title": "Weekly insight",
-    "insight_text": "You've spent the most on food this month. Keep an eye on it!",
-    "this_month": "This month",
+    "budget_section": "Budgets",
+    "see_all_budget": "See all",
     "recent": "Recent",
-    "see_all": "See all →"
+    "see_all": "See all",
+    "no_budgets": "No budgets set yet"
+  },
+  "budget": {
+    "title": "Budget",
+    "total_label": "Total discretionary",
+    "left": "{{amount}} kr left",
+    "over": "{{amount}} kr over",
+    "of": "of {{amount}} kr",
+    "no_budget": "No budget set",
+    "set_budget": "Set budget",
+    "edit_budget": "Edit budget",
+    "edit_prompt": "Monthly budget for {{category}}",
+    "save": "Save",
+    "cancel": "Cancel",
+    "add_hint": "Tap a category to set its budget"
   },
   "transactions": {
-    "title": "Transactions",
-    "to_review": "{{count}} to review",
-    "confirm_hint": "Tap ✓ to confirm a purchase"
+    "title": "Spend",
+    "filter_all": "All",
+    "no_transactions": "No transactions yet"
   },
   "categories": {
     "mat": "Food & drinks",
@@ -65,23 +72,25 @@
     "hem": "Home",
     "prenumerationer": "Subscriptions",
     "ovrigt": "Other",
-    "lon": "Salary",
-    "title": "Categories",
-    "subtitle": "This month",
-    "total_label": "Total spent",
-    "pct_of_total": "{{pct}}% of total"
+    "lon": "Salary"
   },
   "insights": {
     "title": "Insights",
-    "subtitle": "Calm observations about your money.\nNo judgment here.",
-    "i1_title": "Food & drinks",
-    "i1_text": "You spent 18% more on food this week compared to last. Mostly grocery and cafés.",
-    "i2_title": "Well done!",
-    "i2_text": "You've stayed under your transport budget three weeks in a row. That's 340 kr extra in your pocket.",
-    "i3_title": "Subscriptions",
-    "i3_text": "You're paying for 4 streaming services. That's 567 kr/month. Are you using all of them?",
-    "i4_title": "The payday effect",
-    "i4_text": "You spend on average 42% more in the first week after payday. Pretty normal — but good to know."
+    "subtitle": "The numbers, straight up.",
+    "biggest_category": "{{category}} is your biggest spend this month.",
+    "biggest_amount": "{{amount}} kr",
+    "on_track": "You're on track.",
+    "on_track_detail": "{{amount}} kr left before the {{day}}th.",
+    "subscription_fact": "{{name}}: {{amount}} kr this month.",
+    "category_change_up": "{{category}} is up {{amount}} kr vs last month.",
+    "category_change_down": "{{category}} is down {{amount}} kr vs last month.",
+    "under_budget": "Three months under {{category}} budget.",
+    "under_budget_detail": "{{amount}} kr you didn't notice saving.",
+    "no_budgets_title": "You don't have a budget yet.",
+    "no_budgets_detail": "That's fine — but you can't improve what you don't track.",
+    "no_budgets_cta": "Set a budget",
+    "savings_seed_title": "If you put 500 kr aside monthly,",
+    "savings_seed_detail": "that's 6,000 kr by December. Round-ups coming soon."
   },
   "settings": {
     "title": "Settings",
@@ -90,15 +99,13 @@
     "language_en": "English",
     "payday_section": "Payday",
     "payday_value": "{{day}}th every month",
-    "bank_section": "Bank",
+    "bank_section": "Bank connection",
     "bank_connected": "Connected",
     "bank_not_connected": "Not connected",
+    "bank_mock_note": "Using demo data. Connect your bank to make it real.",
     "reconnect": "Reconnect",
     "connect_bank": "Connect bank",
     "app_section": "About",
     "version": "Version {{version}}"
-  },
-  "common": {
-    "kr": " kr"
   }
 }

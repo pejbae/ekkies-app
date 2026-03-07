@@ -1,29 +1,11 @@
 import { Tabs } from 'expo-router';
-import { View, StyleSheet } from 'react-native';
 import { Colors, Typography } from '@/constants/theme';
 import { useTranslation } from 'react-i18next';
 import { HomeIcon } from '@/components/icons/HomeIcon';
+import { BudgetIcon } from '@/components/icons/BudgetIcon';
 import { TransactionsIcon } from '@/components/icons/TransactionsIcon';
-import { CategoriesIcon } from '@/components/icons/CategoriesIcon';
 import { InsightsIcon } from '@/components/icons/InsightsIcon';
 import { SettingsIcon } from '@/components/icons/SettingsIcon';
-
-function TabIcon({
-  Icon,
-  focused,
-}: {
-  Icon: React.ComponentType<{ color: string; size?: number }>;
-  focused: boolean;
-}) {
-  return (
-    <View style={[styles.iconWrap, focused && styles.iconWrapActive]}>
-      <Icon
-        color={focused ? Colors.green : Colors.muted}
-        size={20}
-      />
-    </View>
-  );
-}
 
 export default function TabsLayout() {
   const { t } = useTranslation();
@@ -32,83 +14,64 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarStyle: styles.tabBar,
-        tabBarActiveTintColor: Colors.green,
-        tabBarInactiveTintColor: Colors.muted,
-        tabBarLabelStyle: styles.tabLabel,
+        tabBarStyle: {
+          backgroundColor: Colors.bg,
+          borderTopColor: Colors.border,
+          borderTopWidth: 1,
+          height: 84,
+          paddingBottom: 24,
+          paddingTop: 12,
+        },
+        tabBarActiveTintColor: Colors.accent,
+        tabBarInactiveTintColor: Colors.subtle,
+        tabBarLabelStyle: {
+          fontFamily: Typography.semibold,
+          fontSize: 10,
+          letterSpacing: 0.3,
+          marginTop: 2,
+        },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
           title: t('tabs.home'),
-          tabBarIcon: ({ focused }) => (
-            <TabIcon Icon={HomeIcon} focused={focused} />
-          ),
+          tabBarIcon: ({ color }) => <HomeIcon color={color} size={22} />,
+        }}
+      />
+      <Tabs.Screen
+        name="budget"
+        options={{
+          title: t('tabs.budget'),
+          tabBarIcon: ({ color }) => <BudgetIcon color={color} size={22} />,
         }}
       />
       <Tabs.Screen
         name="transactions"
         options={{
-          title: t('tabs.transactions'),
-          tabBarIcon: ({ focused }) => (
-            <TabIcon Icon={TransactionsIcon} focused={focused} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="categories"
-        options={{
-          title: t('tabs.categories'),
-          tabBarIcon: ({ focused }) => (
-            <TabIcon Icon={CategoriesIcon} focused={focused} />
-          ),
+          title: t('tabs.spend'),
+          tabBarIcon: ({ color }) => <TransactionsIcon color={color} size={22} />,
         }}
       />
       <Tabs.Screen
         name="insights"
         options={{
           title: t('tabs.insights'),
-          tabBarIcon: ({ focused }) => (
-            <TabIcon Icon={InsightsIcon} focused={focused} />
-          ),
+          tabBarIcon: ({ color }) => <InsightsIcon color={color} size={22} />,
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
           title: t('tabs.settings'),
-          tabBarIcon: ({ focused }) => (
-            <TabIcon Icon={SettingsIcon} focused={focused} />
-          ),
+          tabBarIcon: ({ color }) => <SettingsIcon color={color} size={22} />,
         }}
+      />
+      {/* Hide legacy categories route from tab bar */}
+      <Tabs.Screen
+        name="categories"
+        options={{ href: null }}
       />
     </Tabs>
   );
 }
-
-const styles = StyleSheet.create({
-  tabBar: {
-    backgroundColor: Colors.surface,
-    borderTopColor: Colors.border,
-    borderTopWidth: 1,
-    height: 84,
-    paddingBottom: 24,
-    paddingTop: 12,
-  },
-  tabLabel: {
-    fontFamily: Typography.regular,
-    fontSize: 10,
-    letterSpacing: 0.5,
-  },
-  iconWrap: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  iconWrapActive: {
-    backgroundColor: Colors.greenGlow,
-  },
-});

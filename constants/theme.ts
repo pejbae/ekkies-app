@@ -1,47 +1,46 @@
-// Ekkies Design System
-// All colors, typography, spacing in one place.
-// Change here → changes everywhere.
+// Ekkies Design System — Rebuilt
+// Klarna-meets-Notion: clean white, bold pink accent, great typography.
 
 export const Colors = {
   // Backgrounds
-  bg: '#0F1A12',
-  surface: '#162019',
-  surface2: '#1C2A1F',
-  border: '#2A3D2D',
+  bg: '#FFFFFF',
+  surface: '#F7F7F5',
+  surface2: '#EFEFED',
+  border: '#E8E8E6',
 
-  // Brand
-  green: '#4CAF72',
-  greenDim: '#1E3D28',
-  greenGlow: 'rgba(76, 175, 114, 0.10)',
-
-  // Accent
-  gold: '#C8963E',
-  goldDim: 'rgba(200, 150, 62, 0.15)',
+  // Accent — the bold pop
+  accent: '#FF2D7A',
+  accentSoft: '#FFF0F5',
+  accentDim: 'rgba(255, 45, 122, 0.12)',
 
   // Text
-  text: '#E8EDE9',
-  muted: '#6B7D6C',
-  subtle: '#3D4F3E',
+  text: '#0D0D0D',
+  muted: '#6B6B6B',
+  subtle: '#B0B0B0',
 
   // Semantic
-  positive: '#4CAF72',
-  warning: '#C8963E',
-  negative: '#E05555',
+  positive: '#00C48C',
+  positiveSoft: '#E8FAF4',
+  warning: '#FF9500',
+  warningSoft: '#FFF4E0',
+  danger: '#FF3B30',
+  dangerSoft: '#FFF0EF',
 
-  // White / overlays
+  // Utility
   white: '#FFFFFF',
-  overlay: 'rgba(15, 26, 18, 0.85)',
+  black: '#0D0D0D',
+  overlay: 'rgba(0,0,0,0.5)',
 };
 
 export const Typography = {
-  // Display — Lora serif for headings
-  display: 'Lora_600SemiBold',
-  displayItalic: 'Lora_400Regular_Italic',
-
-  // Body — DM Sans for UI
-  regular: 'DMSans_400Regular',
-  medium: 'DMSans_500Medium',
-  light: 'DMSans_300Light',
+  // Plus Jakarta Sans — all weights
+  display: 'PlusJakartaSans_800ExtraBold',
+  bold: 'PlusJakartaSans_700Bold',
+  semibold: 'PlusJakartaSans_600SemiBold',
+  medium: 'PlusJakartaSans_500Medium',
+  regular: 'PlusJakartaSans_400Regular',
+  // PJS has no 300 Light — map to regular
+  light: 'PlusJakartaSans_400Regular',
 };
 
 export const Spacing = {
@@ -64,17 +63,24 @@ export const Radius = {
 
 export const Shadow = {
   card: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  subtle: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 3,
+  accent: {
+    shadowColor: '#FF2D7A',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
+    elevation: 6,
+  },
+  fab: {
+    shadowColor: '#FF2D7A',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 10,
   },
 };

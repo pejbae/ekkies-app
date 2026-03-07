@@ -1,60 +1,67 @@
 {
   "onboarding": {
-    "eyebrow": "Dina pengar. Äntligen klart.",
-    "headline_1": "Se vad som",
-    "headline_italic": "faktiskt händer",
-    "headline_2": "med dina pengar.",
-    "body": "Ekkies kopplar till din bank och visar dig exakt vad du spenderar — lugnt, tydligt, utan att döma.",
-    "prop_1": "Koppla din bank på under en minut",
-    "prop_2": "Se dina utgifter sorterade automatiskt",
-    "prop_3": "Kvar till lön — alltid på låsskärmen",
-    "cta_connect": "Koppla din bank →",
-    "cta_explore": "Utforska utan bank"
+    "headline_line1": "Dina pengar,",
+    "headline_line2": "äntligen klart.",
+    "body": "Se exakt vart dina pengar tar vägen. Ingen dömer, inget krångel — bara klarhet.",
+    "cta_connect": "Koppla din bank",
+    "cta_explore": "Utforska först"
   },
   "connect": {
-    "step": "Steg 1 av 2",
     "headline": "Koppla\ndin bank.",
     "body": "Vi ansluter säkert via öppen bankstandard (PSD2). Vi ser aldrig ditt lösenord eller kontouppgifter.",
-    "security_note": "Bankuppkopplingen drivs av Tink — samma standard som alla EU-banker använder.",
+    "security_note": "Bankuppkopplingen drivs av Tink — EU:s öppna bankstandard.",
     "list_label": "Välj din bank",
-    "skip": "Lägg till bank senare",
-    "back": "← Tillbaka"
+    "skip": "Hoppa över",
+    "back": "Tillbaka",
+    "continue": "Fortsätt"
   },
   "payday": {
-    "step": "Steg 2 av 2",
-    "headline": "När får\ndu lön?",
-    "body": "Vi använder detta för att visa hur mycket du har kvar till nästa löndag. Du kan ändra detta när som helst.",
-    "common_label": "Vanliga lönedagar",
-    "all_label": "Eller välj datum",
-    "preview": "Du får lön den {{day}}:e varje månad",
-    "cta": "Klar — visa min översikt →",
-    "skip": "Hoppa över",
-    "back": "← Tillbaka"
+    "headline": "Vi har satt din\nlöndag till den",
+    "day_suffix": ":e",
+    "body": "Det är den vanligaste lönedagen i Sverige. Du kan ändra det när som helst under inställningar.",
+    "cta": "Ser rätt ut",
+    "change": "Ändra",
+    "change_label": "Ange din löndag (1–28)",
+    "confirm_change": "Bekräfta"
   },
   "tabs": {
     "home": "Hem",
-    "transactions": "Transaktioner",
-    "categories": "Kategorier",
+    "budget": "Budget",
+    "spend": "Utgifter",
     "insights": "Insikter",
     "settings": "Inställningar"
   },
   "home": {
-    "greeting": "Hej, {{name}} 👋",
+    "greeting": "Hej, {{name}}",
     "hero_label": "Kvar till lön",
     "days_remaining_one": "{{count}} dag kvar",
     "days_remaining_other": "{{count}} dagar kvar",
     "payday_label": "Lön {{day}}:e",
     "today_label": "Spenderat idag",
-    "insight_title": "Veckans insikt",
-    "insight_text": "Du har spenderat mest på mat den här månaden. Fortsätt hålla koll!",
-    "this_month": "Den här månaden",
+    "budget_section": "Budget",
+    "see_all_budget": "Se alla",
     "recent": "Senaste",
-    "see_all": "Se alla →"
+    "see_all": "Se alla",
+    "no_budgets": "Ingen budget satt ännu"
+  },
+  "budget": {
+    "title": "Budget",
+    "total_label": "Totalt rörliga utgifter",
+    "left": "{{amount}} kr kvar",
+    "over": "{{amount}} kr över",
+    "of": "av {{amount}} kr",
+    "no_budget": "Ingen budget",
+    "set_budget": "Sätt budget",
+    "edit_budget": "Redigera budget",
+    "edit_prompt": "Månadsbudget för {{category}}",
+    "save": "Spara",
+    "cancel": "Avbryt",
+    "add_hint": "Tryck på en kategori för att sätta budget"
   },
   "transactions": {
-    "title": "Transaktioner",
-    "to_review": "{{count}} att granska",
-    "confirm_hint": "Tryck på ✓ för att bekräfta ett köp"
+    "title": "Utgifter",
+    "filter_all": "Alla",
+    "no_transactions": "Inga transaktioner ännu"
   },
   "categories": {
     "mat": "Mat & dryck",
@@ -65,23 +72,25 @@
     "hem": "Hem",
     "prenumerationer": "Prenumerationer",
     "ovrigt": "Övrigt",
-    "lon": "Lön",
-    "title": "Kategorier",
-    "subtitle": "Den här månaden",
-    "total_label": "Totalt spenderat",
-    "pct_of_total": "{{pct}}% av totalt"
+    "lon": "Lön"
   },
   "insights": {
     "title": "Insikter",
-    "subtitle": "Lugna observationer om dina pengar.\nIngen dömer dig här.",
-    "i1_title": "Mat & dryck",
-    "i1_text": "Du spenderade 18% mer på mat den här veckan jämfört med förra. Mestadels ICA och caféer.",
-    "i2_title": "Bra jobbat!",
-    "i2_text": "Du har hållit dig under din transportbudget tre veckor i rad. Det är 340 kr extra i fickan.",
-    "i3_title": "Prenumerationer",
-    "i3_text": "Du betalar för 4 streamingtjänster totalt. Det är 567 kr/månad. Använder du alla?",
-    "i4_title": "Lönedagseffekten",
-    "i4_text": "Du spenderar i snitt 42% mer den första veckan efter lön. Ganska normalt — men bra att veta."
+    "subtitle": "Siffrorna, rakt på sak.",
+    "biggest_category": "{{category}} är din största utgift den här månaden.",
+    "biggest_amount": "{{amount}} kr",
+    "on_track": "Du håller budget.",
+    "on_track_detail": "{{amount}} kr kvar innan den {{day}}:e.",
+    "subscription_fact": "{{name}}: {{amount}} kr den här månaden.",
+    "category_change_up": "{{category}} är upp {{amount}} kr jämfört med förra månaden.",
+    "category_change_down": "{{category}} är ned {{amount}} kr jämfört med förra månaden.",
+    "under_budget": "Tre månader under {{category}}-budgeten.",
+    "under_budget_detail": "{{amount}} kr du inte märkte att du sparade.",
+    "no_budgets_title": "Du har ingen budget ännu.",
+    "no_budgets_detail": "Det är okej — men du kan inte förbättra det du inte mäter.",
+    "no_budgets_cta": "Sätt en budget",
+    "savings_seed_title": "Om du sätter undan 500 kr i månaden,",
+    "savings_seed_detail": "är det 6 000 kr till december. Avrundningar kommer snart."
   },
   "settings": {
     "title": "Inställningar",
@@ -90,15 +99,13 @@
     "language_en": "English",
     "payday_section": "Löndag",
     "payday_value": "{{day}}:e varje månad",
-    "bank_section": "Bank",
+    "bank_section": "Bankuppkoppling",
     "bank_connected": "Ansluten",
     "bank_not_connected": "Ej ansluten",
+    "bank_mock_note": "Visar demodata. Koppla din bank för att göra det riktigt.",
     "reconnect": "Koppla om",
     "connect_bank": "Koppla bank",
     "app_section": "Om appen",
     "version": "Version {{version}}"
-  },
-  "common": {
-    "kr": " kr"
   }
 }
