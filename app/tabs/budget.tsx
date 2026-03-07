@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  Modal, TextInput, KeyboardAvoidingView, Platform,
+  Modal, TextInput, KeyboardAvoidingView, Platform, FlatList,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors, Typography, Spacing, Radius, Shadow } from '@/constants/theme';
 import {
   MOCK_TRANSACTIONS,
+  MOCK_USER,
   CATEGORY_COLORS,
   getCategoryLabel,
   getMonthSpendingByCategory,
@@ -16,23 +17,43 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useApp } from '@/context/AppContext';
 
-// Discretionary categories available to budget
 const BUDGET_CATEGORIES: Category[] = [
   'mat', 'transport', 'noje', 'halsa', 'shopping', 'prenumerationer',
 ];
 
+// Round to nearest 100, then bump by 10%
+const suggestBudget = (spent: number): number =>
+  Math.ceil((spent * 1.1) / 100) * 100;
+
 export default function Budget() {
   const { t } = useTranslation();
   const { budgets, setBudget } = useApp();
+
+  // Single category edit modal
   const [editing, setEditing] = useState<Category | null>(null);
   const [inputVal, setInputVal] = useState('');
 
+  // Paycheck allocation wizard modal
+  const [wizardOpen, setWizardOpen] = useState(false);
+  const [wizardDismissed, setWizardDismissed] = useState(false);
+  const [wizardAmounts, setWizardAmounts] = useState<Record<string, string>>({});
+
   const byCategory = getMonthSpendingByCategory(MOCK_TRANSACTIONS);
 
-  // Total discretionary budget and spend
   const totalBudget = BUDGET_CATEGORIES.reduce((sum, cat) => sum + (budgets[cat] ?? 0), 0);
   const totalSpent = BUDGET_CATEGORIES.reduce((sum, cat) => sum + (byCategory[cat] ?? 0), 0);
   const totalProgress = getBudgetProgress(totalSpent, totalBudget);
+
+  // Check for salary this month
+  const now = new Date();
+  const paycheckTx = MOCK_TRANSACTIONS.find(
+    (tx) =>
+      tx.category === 'lon' &&
+      tx.amount > 0 &&
+      new Date(tx.date).getMonth() === now.getMonth() &&
+      new Date(tx.date).getFullYear() === now.getFullYear()
+  );
+  const showPaycheckBanner = !!paycheckTx && !wizardDismissed;
 
   const openEdit = (cat: Category) => {
     setInputVal(String(budgets[cat] ?? ''));
@@ -54,6 +75,36 @@ export default function Budget() {
     setInputVal('');
   };
 
+  const openWizard = () => {
+    // Seed wizard amounts from last month's spend + 10%, or existing budget
+    const initial: Record<string, string> = {};
+    BUDGET_CATEGORIES.forEach((cat) => {
+      const spent = byCategory[cat] ?? 0;
+      if (budgets[cat]) {
+        initial[cat] = String(budgets[cat]);
+      } else if (spent > 0) {
+        initial[cat] = String(suggestBudget(spent));
+      } else {
+        initial[cat] = '0';
+      }
+    });
+    setWizardAmounts(initial);
+    setWizardOpen(true);
+  };
+
+  const applyWizard = async () => {
+    await Promise.all(
+      BUDGET_CATEGORIES.map(async (cat) => {
+        const amount = parseInt(wizardAmounts[cat] ?? '0', 10);
+        if (!isNaN(amount) && amount >= 0) {
+          await setBudget(cat, amount);
+        }
+      })
+    );
+    setWizardOpen(false);
+    setWizardDismissed(true);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -62,6 +113,32 @@ export default function Budget() {
         <View style={styles.header}>
           <Text style={styles.title}>{t('budget.title')}</Text>
         </View>
+
+        {/* Paycheck banner */}
+        {showPaycheckBanner && (
+          <View style={styles.paycheckBanner}>
+            <View style={styles.paycheckContent}>
+              <Text style={styles.paycheckText}>
+                {t('budget.paycheck_banner', {
+                  amount: paycheckTx!.amount.toLocaleString('sv-SE'),
+                })}
+              </Text>
+              <TouchableOpacity
+                style={styles.allocateBtn}
+                onPress={openWizard}
+                activeOpacity={0.85}
+              >
+                <Text style={styles.allocateBtnText}>{t('budget.suggest_split')}</Text>
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity
+              onPress={() => setWizardDismissed(true)}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Text style={styles.dismissText}>{t('budget.not_now')}</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* Total bar */}
         {totalBudget > 0 && (
@@ -102,7 +179,7 @@ export default function Budget() {
               ? getBudgetProgress(spent, budget)
               : { pct: 0, color: Colors.subtle };
 
-            const remaining = hasBudget ? (budget - spent) : 0;
+            const remaining = hasBudget ? budget - spent : 0;
             const isOver = remaining < 0;
 
             return (
@@ -112,26 +189,23 @@ export default function Budget() {
                 onPress={() => openEdit(cat)}
                 activeOpacity={0.8}
               >
-                {/* Category header */}
                 <View style={styles.catTop}>
                   <View style={styles.catLeft}>
                     <View style={[styles.catDot, { backgroundColor: catColor }]} />
-                    <Text style={styles.catName}>{getCategoryLabel(cat, t)}</Text>
+                    <Text style={styles.catName} numberOfLines={1} ellipsizeMode="tail">
+                      {getCategoryLabel(cat, t)}
+                    </Text>
                   </View>
-                  <Text style={styles.catEdit}>Edit</Text>
+                  <Text style={styles.catEdit}>{t('budget.edit_budget')}</Text>
                 </View>
 
-                {/* Budget bar */}
                 {hasBudget ? (
                   <>
                     <View style={styles.barBg}>
                       <View
                         style={[
                           styles.barFill,
-                          {
-                            width: `${Math.min(pct, 100)}%`,
-                            backgroundColor: color,
-                          },
+                          { width: `${Math.min(pct, 100)}%`, backgroundColor: color },
                         ]}
                       />
                     </View>
@@ -151,7 +225,9 @@ export default function Budget() {
                   </>
                 ) : (
                   <Text style={styles.noBudget}>
-                    {t('budget.set_budget')} — {spent > 0 ? `${spent.toLocaleString('sv-SE')} kr this month` : t('budget.no_budget')}
+                    {spent > 0
+                      ? `${spent.toLocaleString('sv-SE')} kr — ${t('budget.no_budget')}`
+                      : t('budget.no_budget')}
                   </Text>
                 )}
               </TouchableOpacity>
@@ -162,7 +238,7 @@ export default function Budget() {
         <View style={{ height: 100 }} />
       </ScrollView>
 
-      {/* Edit modal */}
+      {/* Single category edit modal */}
       <Modal
         visible={editing !== null}
         transparent
@@ -205,6 +281,70 @@ export default function Budget() {
           </View>
         </KeyboardAvoidingView>
       </Modal>
+
+      {/* Paycheck wizard modal */}
+      <Modal
+        visible={wizardOpen}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setWizardOpen(false)}
+      >
+        <KeyboardAvoidingView
+          style={styles.modalOverlay}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
+          <TouchableOpacity
+            style={styles.modalBackdrop}
+            onPress={() => setWizardOpen(false)}
+            activeOpacity={1}
+          />
+          <View style={[styles.modalSheet, styles.wizardSheet]}>
+            <View style={styles.modalHandle} />
+            <Text style={styles.modalTitle}>{t('budget.suggestion_intro')}</Text>
+
+            <FlatList
+              data={BUDGET_CATEGORIES}
+              keyExtractor={(item) => item}
+              scrollEnabled={false}
+              ItemSeparatorComponent={() => <View style={{ height: Spacing.sm }} />}
+              renderItem={({ item: cat }) => {
+                const catColor = CATEGORY_COLORS[cat] ?? Colors.accent;
+                return (
+                  <View style={styles.wizardRow}>
+                    <View style={[styles.catDot, { backgroundColor: catColor }]} />
+                    <Text style={styles.wizardCatName} numberOfLines={1}>
+                      {getCategoryLabel(cat, t)}
+                    </Text>
+                    <View style={styles.wizardInputWrap}>
+                      <TextInput
+                        style={styles.wizardInput}
+                        value={wizardAmounts[cat] ?? '0'}
+                        onChangeText={(v) => setWizardAmounts((prev) => ({ ...prev, [cat]: v }))}
+                        keyboardType="number-pad"
+                        selectTextOnFocus
+                      />
+                      <Text style={styles.wizardKr}>kr</Text>
+                    </View>
+                  </View>
+                );
+              }}
+            />
+
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                style={styles.cancelBtn}
+                onPress={() => setWizardOpen(false)}
+                activeOpacity={0.75}
+              >
+                <Text style={styles.cancelBtnText}>{t('budget.cancel')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.saveBtn} onPress={applyWizard} activeOpacity={0.85}>
+                <Text style={styles.saveBtnText}>{t('budget.apply_all')}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -221,6 +361,47 @@ const styles = StyleSheet.create({
     fontSize: 28,
     color: Colors.text,
     letterSpacing: -0.5,
+  },
+
+  // Paycheck banner
+  paycheckBanner: {
+    marginHorizontal: Spacing.lg,
+    marginBottom: Spacing.lg,
+    backgroundColor: Colors.accentSoft,
+    borderRadius: Radius.lg,
+    borderWidth: 1,
+    borderColor: Colors.accent + '30',
+    padding: Spacing.md,
+    gap: Spacing.sm,
+  },
+  paycheckContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  paycheckText: {
+    flex: 1,
+    fontFamily: Typography.semibold,
+    fontSize: 13,
+    color: Colors.accent,
+  },
+  allocateBtn: {
+    backgroundColor: Colors.accent,
+    borderRadius: Radius.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 8,
+    ...Shadow.accent,
+  },
+  allocateBtnText: {
+    fontFamily: Typography.semibold,
+    fontSize: 13,
+    color: Colors.white,
+  },
+  dismissText: {
+    fontFamily: Typography.medium,
+    fontSize: 12,
+    color: Colors.muted,
+    textAlign: 'right',
   },
 
   // Total card
@@ -292,21 +473,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
+    flex: 1,
+    minWidth: 0,
   },
   catDot: {
     width: 10,
     height: 10,
     borderRadius: 5,
+    flexShrink: 0,
   },
   catName: {
     fontFamily: Typography.semibold,
     fontSize: 15,
     color: Colors.text,
+    flex: 1,
   },
   catEdit: {
     fontFamily: Typography.medium,
     fontSize: 12,
     color: Colors.accent,
+    flexShrink: 0,
+    marginLeft: Spacing.sm,
   },
   barBg: {
     height: 6,
@@ -343,7 +530,7 @@ const styles = StyleSheet.create({
     color: Colors.muted,
   },
 
-  // Modal
+  // Shared modal styles
   modalOverlay: {
     flex: 1,
     justifyContent: 'flex-end',
@@ -359,6 +546,9 @@ const styles = StyleSheet.create({
     padding: Spacing.lg,
     paddingBottom: 40,
     gap: Spacing.lg,
+  },
+  wizardSheet: {
+    maxHeight: '85%',
   },
   modalHandle: {
     width: 40,
@@ -425,5 +615,45 @@ const styles = StyleSheet.create({
     fontFamily: Typography.semibold,
     fontSize: 15,
     color: Colors.white,
+  },
+
+  // Wizard rows
+  wizardRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.md,
+    padding: Spacing.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  wizardCatName: {
+    flex: 1,
+    fontFamily: Typography.medium,
+    fontSize: 14,
+    color: Colors.text,
+  },
+  wizardInputWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: Radius.sm,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  wizardInput: {
+    fontFamily: Typography.semibold,
+    fontSize: 15,
+    color: Colors.text,
+    minWidth: 60,
+    textAlign: 'right',
+  },
+  wizardKr: {
+    fontFamily: Typography.regular,
+    fontSize: 13,
+    color: Colors.muted,
   },
 });

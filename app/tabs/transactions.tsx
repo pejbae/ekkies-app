@@ -17,18 +17,15 @@ const FILTER_CATEGORIES: (Category | 'all')[] = [
 
 export default function Transactions() {
   const { t, i18n } = useTranslation();
-  const [transactions, setTransactions] = useState(MOCK_TRANSACTIONS);
   const [activeFilter, setActiveFilter] = useState<Category | 'all'>('all');
 
-  const locale = i18n.language === 'en' ? 'en-SE' : 'sv-SE';
+  const locale = i18n.language === 'sv' ? 'sv-SE' : 'en-GB';
 
-  const confirm = (id: string) => {
-    setTransactions((prev) => prev.map((tx) => (tx.id === id ? { ...tx, confirmed: true } : tx)));
-  };
-
-  const spending = transactions.filter((tx) =>
-    tx.amount < 0 && (activeFilter === 'all' || tx.category === activeFilter)
+  const spending = MOCK_TRANSACTIONS.filter(
+    (tx) => tx.amount < 0 && (activeFilter === 'all' || tx.category === activeFilter)
   );
+
+  const monthlyTotal = spending.reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
 
   // Group by date
   const grouped: { date: string; items: Transaction[] }[] = [];
@@ -47,6 +44,16 @@ export default function Transactions() {
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>{t('transactions.title')}</Text>
+      </View>
+
+      {/* Monthly summary strip */}
+      <View style={styles.summaryStrip}>
+        <Text style={styles.summaryText}>
+          {t('transactions.monthly_summary', {
+            count: spending.length,
+            amount: monthlyTotal.toLocaleString('sv-SE'),
+          })}
+        </Text>
       </View>
 
       {/* Filter pills */}
@@ -82,7 +89,7 @@ export default function Transactions() {
           <View style={styles.group}>
             <Text style={styles.groupDate}>{group.date}</Text>
             {group.items.map((tx) => (
-              <TransactionRow key={tx.id} transaction={tx} onConfirm={() => confirm(tx.id)} />
+              <TransactionRow key={tx.id} transaction={tx} />
             ))}
           </View>
         )}
@@ -91,18 +98,12 @@ export default function Transactions() {
   );
 }
 
-function TransactionRow({
-  transaction: tx,
-  onConfirm,
-}: {
-  transaction: Transaction;
-  onConfirm: () => void;
-}) {
+function TransactionRow({ transaction: tx }: { transaction: Transaction }) {
   const { t } = useTranslation();
   const catColor = CATEGORY_COLORS[tx.category] ?? Colors.subtle;
 
   return (
-    <View style={[styles.txRow, tx.confirmed && styles.txRowConfirmed]}>
+    <View style={styles.txRow}>
       <View style={[styles.txAvatar, { backgroundColor: catColor + '20' }]}>
         <Text style={[styles.txAvatarText, { color: catColor }]}>
           {tx.merchant[0].toUpperCase()}
@@ -110,31 +111,20 @@ function TransactionRow({
       </View>
 
       <View style={styles.txInfo}>
-        <Text style={styles.txMerchant}>{tx.merchant}</Text>
+        <Text style={styles.txMerchant} numberOfLines={1} ellipsizeMode="tail">
+          {tx.merchant}
+        </Text>
         <View style={styles.catPill}>
           <View style={[styles.catDot, { backgroundColor: catColor }]} />
-          <Text style={[styles.catLabel, { color: catColor }]}>
+          <Text style={[styles.catLabel, { color: catColor }]} numberOfLines={1}>
             {getCategoryLabel(tx.category, t)}
           </Text>
         </View>
       </View>
 
-      <View style={styles.txRight}>
-        <Text style={styles.txAmount}>
-          -{Math.abs(tx.amount).toLocaleString('sv-SE')} kr
-        </Text>
-        {!tx.confirmed ? (
-          <TouchableOpacity
-            style={styles.confirmBtn}
-            onPress={onConfirm}
-            activeOpacity={0.75}
-          >
-            <Text style={styles.confirmText}>✓</Text>
-          </TouchableOpacity>
-        ) : (
-          <Text style={styles.confirmedText}>✓</Text>
-        )}
-      </View>
+      <Text style={styles.txAmount}>
+        -{Math.abs(tx.amount).toLocaleString('sv-SE')} kr
+      </Text>
     </View>
   );
 }
@@ -144,13 +134,22 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: Spacing.lg,
     paddingTop: Spacing.md,
-    paddingBottom: Spacing.md,
+    paddingBottom: Spacing.sm,
   },
   title: {
     fontFamily: Typography.display,
     fontSize: 28,
     color: Colors.text,
     letterSpacing: -0.5,
+  },
+  summaryStrip: {
+    paddingHorizontal: Spacing.lg,
+    paddingBottom: Spacing.md,
+  },
+  summaryText: {
+    fontFamily: Typography.medium,
+    fontSize: 13,
+    color: Colors.muted,
   },
   filterBar: {
     marginBottom: Spacing.md,
@@ -200,7 +199,6 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     color: Colors.muted,
     marginBottom: Spacing.sm,
-    textTransform: 'capitalize',
   },
   txRow: {
     flexDirection: 'row',
@@ -213,26 +211,24 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.border,
   },
-  txRowConfirmed: {
-    opacity: 0.5,
-  },
   txAvatar: {
     width: 44,
     height: 44,
     borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
+    flexShrink: 0,
   },
   txAvatarText: {
     fontFamily: Typography.bold,
     fontSize: 17,
   },
-  txInfo: { flex: 1 },
+  txInfo: { flex: 1, minWidth: 0 },
   txMerchant: {
     fontFamily: Typography.medium,
     fontSize: 15,
     color: Colors.text,
-    marginBottom: 5,
+    marginBottom: 4,
   },
   catPill: {
     flexDirection: 'row',
@@ -243,36 +239,16 @@ const styles = StyleSheet.create({
     width: 5,
     height: 5,
     borderRadius: 3,
+    flexShrink: 0,
   },
   catLabel: {
     fontFamily: Typography.regular,
     fontSize: 12,
   },
-  txRight: {
-    alignItems: 'flex-end',
-    gap: 6,
-  },
   txAmount: {
     fontFamily: Typography.semibold,
     fontSize: 14,
     color: Colors.text,
-  },
-  confirmBtn: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: Colors.positiveSoft,
-    borderWidth: 1,
-    borderColor: Colors.positive,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  confirmText: {
-    fontSize: 13,
-    color: Colors.positive,
-  },
-  confirmedText: {
-    fontSize: 13,
-    color: Colors.subtle,
+    flexShrink: 0,
   },
 });

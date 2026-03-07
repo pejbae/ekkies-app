@@ -3,9 +3,9 @@
 
 export const Colors = {
   // Backgrounds
-  bg: '#FFFFFF',
-  surface: '#F7F7F5',
-  surface2: '#EFEFED',
+  bg: '#FAF9F7',
+  surface: '#F0EFEC',
+  surface2: '#E5E3DF',
   border: '#E8E8E6',
 
   // Accent — the bold pop

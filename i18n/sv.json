@@ -56,12 +56,19 @@
     "edit_prompt": "Månadsbudget för {{category}}",
     "save": "Spara",
     "cancel": "Avbryt",
-    "add_hint": "Tryck på en kategori för att sätta budget"
+    "add_hint": "Tryck på en kategori för att sätta budget",
+    "paycheck_banner": "Din lön har kommit · {{amount}} kr",
+    "suggest_split": "Fördela din lön →",
+    "suggestion_intro": "Baserat på förra månadens utgifter, här är ett förslag:",
+    "apply_all": "Tillämpa alla",
+    "not_now": "Inte nu"
   },
   "transactions": {
     "title": "Utgifter",
     "filter_all": "Alla",
-    "no_transactions": "Inga transaktioner ännu"
+    "no_transactions": "Inga transaktioner ännu",
+    "monthly_summary_one": "Den här månaden · {{amount}} kr på {{count}} transaktion",
+    "monthly_summary_other": "Den här månaden · {{amount}} kr på {{count}} transaktioner"
   },
   "categories": {
     "mat": "Mat & dryck",
@@ -77,20 +84,22 @@
   "insights": {
     "title": "Insikter",
     "subtitle": "Siffrorna, rakt på sak.",
-    "biggest_category": "{{category}} är din största utgift den här månaden.",
-    "biggest_amount": "{{amount}} kr",
-    "on_track": "Du håller budget.",
-    "on_track_detail": "{{amount}} kr kvar innan den {{day}}:e.",
-    "subscription_fact": "{{name}}: {{amount}} kr den här månaden.",
-    "category_change_up": "{{category}} är upp {{amount}} kr jämfört med förra månaden.",
-    "category_change_down": "{{category}} är ned {{amount}} kr jämfört med förra månaden.",
-    "under_budget": "Tre månader under {{category}}-budgeten.",
-    "under_budget_detail": "{{amount}} kr du inte märkte att du sparade.",
+    "health_on_track": "Du håller budget.",
+    "health_watch_out": "Håll koll.",
+    "health_over": "Du är över budget.",
+    "health_detail_ok": "{{amount}} kr kvar · {{days}} dagar till lön",
+    "health_detail_tight": "{{amount}} kr kvar och {{days}} dagar kvar — tajt.",
+    "health_no_budget": "{{amount}} kr kvar · Sätt en budget för att följa detta.",
+    "spending_title": "Vart pengarna gick",
+    "spending_total": "{{amount}} kr rörliga utgifter den här månaden",
+    "subscriptions_title": "Återkommande kostnader",
+    "subscriptions_total": "{{amount}} kr / månad",
+    "subscriptions_empty": "Inga prenumerationer den här månaden.",
+    "opportunity_title": "Du har utrymme.",
+    "opportunity_detail": "{{amount}} kr under budget. Kan gå till sparande — avrundningar kommer snart.",
     "no_budgets_title": "Du har ingen budget ännu.",
     "no_budgets_detail": "Det är okej — men du kan inte förbättra det du inte mäter.",
-    "no_budgets_cta": "Sätt en budget",
-    "savings_seed_title": "Om du sätter undan 500 kr i månaden,",
-    "savings_seed_detail": "är det 6 000 kr till december. Avrundningar kommer snart."
+    "no_budgets_cta": "Sätt en budget"
   },
   "settings": {
     "title": "Inställningar",

@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
+import { getLocales } from 'expo-localization';
 
 const KEYS = {
   ONBOARDING_COMPLETE: 'ekkies_onboarding_complete',
@@ -45,7 +46,9 @@ export async function setPayday(day: number): Promise<void> {
 export async function getLanguage(): Promise<Language> {
   const v = await AsyncStorage.getItem(KEYS.LANGUAGE);
   if (v === 'en' || v === 'sv') return v;
-  return 'sv';
+  // No saved preference — use device locale
+  const deviceLang = getLocales()?.[0]?.languageCode ?? 'en';
+  return deviceLang.startsWith('sv') ? 'sv' : 'en';
 }
 
 export async function setLanguage(lang: Language): Promise<void> {

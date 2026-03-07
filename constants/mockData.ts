@@ -53,101 +53,44 @@ export const MOCK_BUDGETS: Partial<Record<Category, number>> = {
   hem: 1000,
 };
 
+const d = (daysAgo: number) => new Date(Date.now() - daysAgo * 86400000).toISOString();
+
 export const MOCK_TRANSACTIONS: Transaction[] = [
-  {
-    id: '1',
-    merchant: 'ICA Maxi',
-    amount: -487,
-    category: 'mat',
-    date: new Date().toISOString(),
-    confirmed: false,
-    emoji: '🛒',
-  },
-  {
-    id: '2',
-    merchant: 'Kaffe Kontoret',
-    amount: -52,
-    category: 'mat',
-    date: new Date().toISOString(),
-    confirmed: false,
-    emoji: '☕',
-  },
-  {
-    id: '3',
-    merchant: 'SL',
-    amount: -145,
-    category: 'transport',
-    date: new Date(Date.now() - 86400000).toISOString(),
-    confirmed: true,
-    emoji: '🚇',
-  },
-  {
-    id: '4',
-    merchant: 'Spotify',
-    amount: -119,
-    category: 'prenumerationer',
-    date: new Date(Date.now() - 86400000).toISOString(),
-    confirmed: true,
-    emoji: '🎵',
-  },
-  {
-    id: '5',
-    merchant: 'Lön - Företaget AB',
-    amount: 32500,
-    category: 'lon',
-    date: new Date(Date.now() - 172800000).toISOString(),
-    confirmed: true,
-    emoji: '💰',
-  },
-  {
-    id: '6',
-    merchant: 'Systembolaget',
-    amount: -289,
-    category: 'noje',
-    date: new Date(Date.now() - 172800000).toISOString(),
-    confirmed: false,
-    emoji: '🍷',
-  },
-  {
-    id: '7',
-    merchant: 'Apoteket',
-    amount: -156,
-    category: 'halsa',
-    date: new Date(Date.now() - 259200000).toISOString(),
-    confirmed: true,
-    emoji: '💊',
-  },
-  {
-    id: '8',
-    merchant: 'H&M',
-    amount: -649,
-    category: 'shopping',
-    date: new Date(Date.now() - 345600000).toISOString(),
-    confirmed: true,
-    emoji: '👕',
-  },
-  {
-    id: '9',
-    merchant: 'Netflix',
-    amount: -139,
-    category: 'prenumerationer',
-    date: new Date(Date.now() - 432000000).toISOString(),
-    confirmed: true,
-    emoji: '📺',
-  },
-  {
-    id: '10',
-    merchant: 'Hemköp',
-    amount: -334,
-    category: 'mat',
-    date: new Date(Date.now() - 432000000).toISOString(),
-    confirmed: true,
-    emoji: '🥬',
-  },
+  // Today
+  { id: '1',  merchant: 'ICA Maxi',          amount: -487,  category: 'mat',             date: d(0), confirmed: false, emoji: '🛒' },
+  { id: '2',  merchant: 'Kaffe Kontoret',    amount: -52,   category: 'mat',             date: d(0), confirmed: false, emoji: '☕' },
+  // 1 day ago
+  { id: '3',  merchant: 'SL',                amount: -145,  category: 'transport',       date: d(1), confirmed: true,  emoji: '🚇' },
+  { id: '4',  merchant: 'Spotify',           amount: -119,  category: 'prenumerationer', date: d(1), confirmed: true,  emoji: '🎵' },
+  // 2 days ago
+  { id: '5',  merchant: 'Lön - Företaget AB', amount: 32500, category: 'lon',           date: d(2), confirmed: true,  emoji: '💰' },
+  { id: '6',  merchant: 'Systembolaget',     amount: -289,  category: 'noje',            date: d(2), confirmed: true,  emoji: '🍷' },
+  // 3 days ago
+  { id: '7',  merchant: 'Coop',              amount: -421,  category: 'mat',             date: d(3), confirmed: true,  emoji: '🛒' },
+  { id: '8',  merchant: 'Bolt',              amount: -89,   category: 'transport',       date: d(3), confirmed: true,  emoji: '🚗' },
+  // 4 days ago
+  { id: '9',  merchant: 'Apoteket',          amount: -156,  category: 'halsa',           date: d(4), confirmed: true,  emoji: '💊' },
+  { id: '10', merchant: 'H&M',               amount: -649,  category: 'shopping',        date: d(4), confirmed: true,  emoji: '👕' },
+  // 5 days ago
+  { id: '11', merchant: 'Netflix',           amount: -139,  category: 'prenumerationer', date: d(5), confirmed: true,  emoji: '📺' },
+  { id: '12', merchant: 'Hemköp',            amount: -334,  category: 'mat',             date: d(5), confirmed: true,  emoji: '🥬' },
+  { id: '13', merchant: "McDonald's",        amount: -143,  category: 'mat',             date: d(5), confirmed: true,  emoji: '🍔' },
+  // 6 days ago
+  { id: '14', merchant: 'Kicks',             amount: -299,  category: 'halsa',           date: d(6), confirmed: true,  emoji: '💅' },
+  { id: '15', merchant: 'Stadium',           amount: -459,  category: 'shopping',        date: d(6), confirmed: true,  emoji: '👟' },
+  // 7 days ago
+  { id: '16', merchant: 'Uber Eats',         amount: -312,  category: 'mat',             date: d(7), confirmed: true,  emoji: '🍜' },
+  { id: '17', merchant: 'HBO Max',           amount: -119,  category: 'prenumerationer', date: d(7), confirmed: true,  emoji: '📺' },
+  // 8 days ago
+  { id: '18', merchant: 'Pressbyrån',        amount: -67,   category: 'mat',             date: d(8), confirmed: true,  emoji: '🥐' },
+  { id: '19', merchant: 'Gym kort',          amount: -349,  category: 'halsa',           date: d(8), confirmed: true,  emoji: '💪' },
+  // 10 days ago
+  { id: '20', merchant: 'ZARA',              amount: -549,  category: 'shopping',        date: d(10), confirmed: true, emoji: '🛍️' },
+  { id: '21', merchant: 'Bio Filmstaden',    amount: -200,  category: 'noje',            date: d(10), confirmed: true, emoji: '🎬' },
 ];
 
 export const MOCK_USER = {
-  name: 'Alex',
+  name: 'Pej',
   payday: 25,
   monthlyIncome: 32500,
   currency: 'kr',

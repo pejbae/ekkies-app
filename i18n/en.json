@@ -56,12 +56,19 @@
     "edit_prompt": "Monthly budget for {{category}}",
     "save": "Save",
     "cancel": "Cancel",
-    "add_hint": "Tap a category to set its budget"
+    "add_hint": "Tap a category to set its budget",
+    "paycheck_banner": "Your paycheck landed · {{amount}} kr",
+    "suggest_split": "Allocate your paycheck →",
+    "suggestion_intro": "Based on last month's spending, here's a starting point:",
+    "apply_all": "Apply all",
+    "not_now": "Not now"
   },
   "transactions": {
     "title": "Spend",
     "filter_all": "All",
-    "no_transactions": "No transactions yet"
+    "no_transactions": "No transactions yet",
+    "monthly_summary_one": "This month · {{amount}} kr across {{count}} transaction",
+    "monthly_summary_other": "This month · {{amount}} kr across {{count}} transactions"
   },
   "categories": {
     "mat": "Food & drinks",
@@ -77,20 +84,22 @@
   "insights": {
     "title": "Insights",
     "subtitle": "The numbers, straight up.",
-    "biggest_category": "{{category}} is your biggest spend this month.",
-    "biggest_amount": "{{amount}} kr",
-    "on_track": "You're on track.",
-    "on_track_detail": "{{amount}} kr left before the {{day}}th.",
-    "subscription_fact": "{{name}}: {{amount}} kr this month.",
-    "category_change_up": "{{category}} is up {{amount}} kr vs last month.",
-    "category_change_down": "{{category}} is down {{amount}} kr vs last month.",
-    "under_budget": "Three months under {{category}} budget.",
-    "under_budget_detail": "{{amount}} kr you didn't notice saving.",
+    "health_on_track": "You're on track.",
+    "health_watch_out": "Heads up.",
+    "health_over": "You're over budget.",
+    "health_detail_ok": "{{amount}} kr left · {{days}} days to payday",
+    "health_detail_tight": "{{amount}} kr left and {{days}} days to go — tight.",
+    "health_no_budget": "{{amount}} kr left · Set a budget to track this properly.",
+    "spending_title": "Where your money went",
+    "spending_total": "{{amount}} kr discretionary this month",
+    "subscriptions_title": "Recurring costs",
+    "subscriptions_total": "{{amount}} kr / month",
+    "subscriptions_empty": "No subscriptions this month.",
+    "opportunity_title": "You have headroom.",
+    "opportunity_detail": "{{amount}} kr under budget. Could go to savings — round-ups coming soon.",
     "no_budgets_title": "You don't have a budget yet.",
     "no_budgets_detail": "That's fine — but you can't improve what you don't track.",
-    "no_budgets_cta": "Set a budget",
-    "savings_seed_title": "If you put 500 kr aside monthly,",
-    "savings_seed_detail": "that's 6,000 kr by December. Round-ups coming soon."
+    "no_budgets_cta": "Set a budget"
   },
   "settings": {
     "title": "Settings",
