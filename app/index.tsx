@@ -1,7 +1,19 @@
+import { useEffect, useState } from 'react';
 import { Redirect } from 'expo-router';
+import { isOnboardingComplete } from '@/constants/storage';
 
-// Entry point — sends user to onboarding for now.
-// Later: check if user has completed onboarding → redirect to /tabs
 export default function Index() {
-  return <Redirect href="/onboarding" />;
+  const [ready, setReady] = useState(false);
+  const [complete, setComplete] = useState(false);
+
+  useEffect(() => {
+    isOnboardingComplete().then((v) => {
+      setComplete(v);
+      setReady(true);
+    });
+  }, []);
+
+  if (!ready) return null;
+
+  return <Redirect href={complete ? '/tabs' : '/onboarding'} />;
 }

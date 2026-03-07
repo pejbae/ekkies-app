@@ -1,21 +1,33 @@
 import { Tabs } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import { Colors, Typography } from '@/constants/theme';
+import { useTranslation } from 'react-i18next';
+import { HomeIcon } from '@/components/icons/HomeIcon';
+import { TransactionsIcon } from '@/components/icons/TransactionsIcon';
+import { CategoriesIcon } from '@/components/icons/CategoriesIcon';
+import { InsightsIcon } from '@/components/icons/InsightsIcon';
+import { SettingsIcon } from '@/components/icons/SettingsIcon';
 
-function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
+function TabIcon({
+  Icon,
+  focused,
+}: {
+  Icon: React.ComponentType<{ color: string; size?: number }>;
+  focused: boolean;
+}) {
   return (
     <View style={[styles.iconWrap, focused && styles.iconWrapActive]}>
-      <View style={{ opacity: focused ? 1 : 0.5 }}>
-        {/* Use emoji as placeholder — replace with SVG icons later */}
-        <View style={styles.emojiWrapper}>
-          {/* We'll add proper icons in a future session */}
-        </View>
-      </View>
+      <Icon
+        color={focused ? Colors.green : Colors.muted}
+        size={20}
+      />
     </View>
   );
 }
 
 export default function TabsLayout() {
+  const { t } = useTranslation();
+
   return (
     <Tabs
       screenOptions={{
@@ -29,36 +41,45 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Hem',
+          title: t('tabs.home'),
           tabBarIcon: ({ focused }) => (
-            <TabIcon emoji="🏠" focused={focused} />
+            <TabIcon Icon={HomeIcon} focused={focused} />
           ),
         }}
       />
       <Tabs.Screen
         name="transactions"
         options={{
-          title: 'Transaktioner',
+          title: t('tabs.transactions'),
           tabBarIcon: ({ focused }) => (
-            <TabIcon emoji="📋" focused={focused} />
+            <TabIcon Icon={TransactionsIcon} focused={focused} />
           ),
         }}
       />
       <Tabs.Screen
         name="categories"
         options={{
-          title: 'Kategorier',
+          title: t('tabs.categories'),
           tabBarIcon: ({ focused }) => (
-            <TabIcon emoji="📊" focused={focused} />
+            <TabIcon Icon={CategoriesIcon} focused={focused} />
           ),
         }}
       />
       <Tabs.Screen
         name="insights"
         options={{
-          title: 'Insikter',
+          title: t('tabs.insights'),
           tabBarIcon: ({ focused }) => (
-            <TabIcon emoji="✦" focused={focused} />
+            <TabIcon Icon={InsightsIcon} focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: t('tabs.settings'),
+          tabBarIcon: ({ focused }) => (
+            <TabIcon Icon={SettingsIcon} focused={focused} />
           ),
         }}
       />
@@ -89,9 +110,5 @@ const styles = StyleSheet.create({
   },
   iconWrapActive: {
     backgroundColor: Colors.greenGlow,
-  },
-  emojiWrapper: {
-    width: 20,
-    height: 20,
   },
 });

@@ -1,20 +1,27 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
 import { Colors, Typography, Spacing, Radius, Shadow } from '@/constants/theme';
 import {
   MOCK_TRANSACTIONS,
   MOCK_USER,
-  CATEGORY_LABELS,
   CATEGORY_COLORS,
+  getCategoryLabel,
   getTodaySpending,
   getDaysUntilPayday,
   getBalanceUntilPayday,
   getMonthSpendingByCategory,
 } from '@/constants/mockData';
+import { useTranslation } from 'react-i18next';
+import { useApp } from '@/context/AppContext';
 
 export default function Home() {
+  const { t, i18n } = useTranslation();
+  const { payday } = useApp();
+
+  const effectivePayday = payday ?? MOCK_USER.payday;
   const todaySpending = getTodaySpending(MOCK_TRANSACTIONS);
-  const daysUntil = getDaysUntilPayday(MOCK_USER.payday);
+  const daysUntil = getDaysUntilPayday(effectivePayday);
   const balance = getBalanceUntilPayday(MOCK_TRANSACTIONS, MOCK_USER.monthlyIncome);
   const byCategory = getMonthSpendingByCategory(MOCK_TRANSACTIONS);
 
@@ -27,8 +34,10 @@ export default function Home() {
 
   // Recent transactions (non-income)
   const recent = MOCK_TRANSACTIONS
-    .filter((t) => t.amount < 0)
+    .filter((tx) => tx.amount < 0)
     .slice(0, 3);
+
+  const locale = i18n.language === 'en' ? 'en-SE' : 'sv-SE';
 
   return (
     <SafeAreaView style={styles.container}>
@@ -37,16 +46,16 @@ export default function Home() {
         {/* Header */}
         <View style={styles.header}>
           <View>
-            <Text style={styles.greeting}>Hej, {MOCK_USER.name} 👋</Text>
+            <Text style={styles.greeting}>{t('home.greeting', { name: MOCK_USER.name })}</Text>
             <Text style={styles.date}>
-              {new Date().toLocaleDateString('sv-SE', {
+              {new Date().toLocaleDateString(locale, {
                 weekday: 'long',
                 day: 'numeric',
                 month: 'long',
               })}
             </Text>
           </View>
-          <TouchableOpacity style={styles.avatar}>
+          <TouchableOpacity style={styles.avatar} onPress={() => router.push('/tabs/settings')}>
             <Text style={styles.avatarText}>
               {MOCK_USER.name[0].toUpperCase()}
             </Text>
@@ -57,7 +66,7 @@ export default function Home() {
         <View style={styles.heroCard}>
           <View style={styles.glow} />
 
-          <Text style={styles.heroLabel}>Kvar till lön</Text>
+          <Text style={styles.heroLabel}>{t('home.hero_label')}</Text>
           <Text style={styles.heroAmount}>
             {balance.toLocaleString('sv-SE')} kr
           </Text>
@@ -65,9 +74,9 @@ export default function Home() {
           {/* Days bar */}
           <View style={styles.daysRow}>
             <Text style={styles.daysText}>
-              {daysUntil} {daysUntil === 1 ? 'dag' : 'dagar'} kvar
+              {t('home.days_remaining', { count: daysUntil })}
             </Text>
-            <Text style={styles.paydayText}>Lön {MOCK_USER.payday}:e</Text>
+            <Text style={styles.paydayText}>{t('home.payday_label', { day: effectivePayday })}</Text>
           </View>
           <View style={styles.progressBar}>
             <View
@@ -81,7 +90,7 @@ export default function Home() {
 
         {/* Spenderat idag */}
         <View style={styles.todayCard}>
-          <Text style={styles.todayLabel}>Spenderat idag</Text>
+          <Text style={styles.todayLabel}>{t('home.today_label')}</Text>
           <Text style={styles.todayAmount}>
             {todaySpending.toLocaleString('sv-SE')} kr
           </Text>
@@ -91,16 +100,14 @@ export default function Home() {
         <View style={styles.insightCard}>
           <Text style={styles.insightEmoji}>✦</Text>
           <View style={styles.insightBody}>
-            <Text style={styles.insightTitle}>Veckans insikt</Text>
-            <Text style={styles.insightText}>
-              Du har spenderat mest på mat den här månaden. Fortsätt hålla koll!
-            </Text>
+            <Text style={styles.insightTitle}>{t('home.insight_title')}</Text>
+            <Text style={styles.insightText}>{t('home.insight_text')}</Text>
           </View>
         </View>
 
         {/* Top categories */}
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Den här månaden</Text>
+          <Text style={styles.sectionLabel}>{t('home.this_month')}</Text>
           {topCategories.map(([cat, amount]) => (
             <View key={cat} style={styles.categoryRow}>
               <View style={styles.categoryInfo}>
@@ -111,7 +118,7 @@ export default function Home() {
                   ]}
                 />
                 <Text style={styles.categoryName}>
-                  {CATEGORY_LABELS[cat as keyof typeof CATEGORY_LABELS]}
+                  {getCategoryLabel(cat, t)}
                 </Text>
               </View>
               <View style={styles.categoryBarWrap}>
@@ -137,24 +144,24 @@ export default function Home() {
         {/* Recent transactions */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionLabel}>Senaste</Text>
+            <Text style={styles.sectionLabel}>{t('home.recent')}</Text>
             <TouchableOpacity>
-              <Text style={styles.seeAll}>Se alla →</Text>
+              <Text style={styles.seeAll}>{t('home.see_all')}</Text>
             </TouchableOpacity>
           </View>
-          {recent.map((t) => (
-            <View key={t.id} style={styles.txRow}>
+          {recent.map((tx) => (
+            <View key={tx.id} style={styles.txRow}>
               <View style={styles.txIcon}>
-                <Text style={styles.txEmoji}>{t.emoji}</Text>
+                <Text style={styles.txEmoji}>{tx.emoji}</Text>
               </View>
               <View style={styles.txInfo}>
-                <Text style={styles.txMerchant}>{t.merchant}</Text>
+                <Text style={styles.txMerchant}>{tx.merchant}</Text>
                 <Text style={styles.txCategory}>
-                  {CATEGORY_LABELS[t.category]}
+                  {getCategoryLabel(tx.category, t)}
                 </Text>
               </View>
               <Text style={styles.txAmount}>
-                -{Math.abs(t.amount).toLocaleString('sv-SE')} kr
+                -{Math.abs(tx.amount).toLocaleString('sv-SE')} kr
               </Text>
             </View>
           ))}

@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-nati
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors, Typography, Spacing, Radius } from '@/constants/theme';
+import { useTranslation } from 'react-i18next';
 
 // Swedish banks - Tink supports all of these
 const BANKS = [
@@ -16,6 +17,8 @@ const BANKS = [
 ];
 
 export default function ConnectBank() {
+  const { t } = useTranslation();
+
   const handleConnect = (bankId: string) => {
     // TODO: Trigger Tink SDK OAuth flow here
     // For now, navigate straight to payday setup
@@ -33,29 +36,24 @@ export default function ConnectBank() {
           onPress={() => router.back()}
           activeOpacity={0.7}
         >
-          <Text style={styles.backText}>← Tillbaka</Text>
+          <Text style={styles.backText}>{t('connect.back')}</Text>
         </TouchableOpacity>
 
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.step}>Steg 1 av 2</Text>
-          <Text style={styles.headline}>Koppla{'\n'}din bank.</Text>
-          <Text style={styles.body}>
-            Vi ansluter säkert via öppen bankstandard (PSD2). Vi ser aldrig
-            ditt lösenord eller kontouppgifter.
-          </Text>
+          <Text style={styles.step}>{t('connect.step')}</Text>
+          <Text style={styles.headline}>{t('connect.headline')}</Text>
+          <Text style={styles.body}>{t('connect.body')}</Text>
         </View>
 
         {/* Security note */}
         <View style={styles.securityNote}>
           <Text style={styles.securityEmoji}>🔒</Text>
-          <Text style={styles.securityText}>
-            Bankuppkopplingen drivs av Tink — samma standard som alla EU-banker använder.
-          </Text>
+          <Text style={styles.securityText}>{t('connect.security_note')}</Text>
         </View>
 
         {/* Bank list */}
-        <Text style={styles.listLabel}>Välj din bank</Text>
+        <Text style={styles.listLabel}>{t('connect.list_label')}</Text>
 
         <View style={styles.bankGrid}>
           {BANKS.map((bank) => (
@@ -76,7 +74,7 @@ export default function ConnectBank() {
           onPress={() => router.push('/onboarding/payday')}
           activeOpacity={0.7}
         >
-          <Text style={styles.skipText}>Lägg till bank senare</Text>
+          <Text style={styles.skipText}>{t('connect.skip')}</Text>
         </TouchableOpacity>
 
         <View style={{ height: Spacing.xxl }} />

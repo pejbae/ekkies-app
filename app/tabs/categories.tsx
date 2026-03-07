@@ -3,12 +3,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors, Typography, Spacing } from '@/constants/theme';
 import {
   MOCK_TRANSACTIONS,
-  CATEGORY_LABELS,
   CATEGORY_COLORS,
+  getCategoryLabel,
   getMonthSpendingByCategory,
 } from '@/constants/mockData';
+import { useTranslation } from 'react-i18next';
 
 export default function Categories() {
+  const { t } = useTranslation();
   const byCategory = getMonthSpendingByCategory(MOCK_TRANSACTIONS);
   const sorted = Object.entries(byCategory).sort(([, a], [, b]) => b - a);
   const total = sorted.reduce((sum, [, v]) => sum + v, 0);
@@ -17,12 +19,12 @@ export default function Categories() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Kategorier</Text>
-        <Text style={styles.subtitle}>Den här månaden</Text>
+        <Text style={styles.title}>{t('categories.title')}</Text>
+        <Text style={styles.subtitle}>{t('categories.subtitle')}</Text>
       </View>
 
       <View style={styles.totalCard}>
-        <Text style={styles.totalLabel}>Totalt spenderat</Text>
+        <Text style={styles.totalLabel}>{t('categories.total_label')}</Text>
         <Text style={styles.totalAmount}>
           {total.toLocaleString('sv-SE')} kr
         </Text>
@@ -38,9 +40,9 @@ export default function Categories() {
                 <View style={[styles.catDot, { backgroundColor: color }]} />
                 <View>
                   <Text style={styles.catName}>
-                    {CATEGORY_LABELS[cat as keyof typeof CATEGORY_LABELS]}
+                    {getCategoryLabel(cat, t)}
                   </Text>
-                  <Text style={styles.catPct}>{pct}% av totalt</Text>
+                  <Text style={styles.catPct}>{t('categories.pct_of_total', { pct })}</Text>
                 </View>
               </View>
               <View style={styles.catRight}>

@@ -3,15 +3,27 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-nati
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors, Typography, Spacing, Radius } from '@/constants/theme';
+import { useTranslation } from 'react-i18next';
+import { useApp } from '@/context/AppContext';
 
 const COMMON_DAYS = [1, 15, 20, 24, 25, 26, 28];
 const ALL_DAYS = Array.from({ length: 28 }, (_, i) => i + 1);
 
 export default function Payday() {
+  const { t } = useTranslation();
+  const { setPayday, completeOnboarding } = useApp();
   const [selected, setSelected] = useState<number | null>(25);
 
-  const handleContinue = () => {
-    // TODO: Save payday to local storage / state
+  const handleContinue = async () => {
+    if (selected) {
+      await setPayday(selected);
+    }
+    await completeOnboarding();
+    router.replace('/tabs');
+  };
+
+  const handleSkip = async () => {
+    await completeOnboarding();
     router.replace('/tabs');
   };
 
@@ -24,20 +36,17 @@ export default function Payday() {
           onPress={() => router.back()}
           activeOpacity={0.7}
         >
-          <Text style={styles.backText}>← Tillbaka</Text>
+          <Text style={styles.backText}>{t('payday.back')}</Text>
         </TouchableOpacity>
 
         <View style={styles.header}>
-          <Text style={styles.step}>Steg 2 av 2</Text>
-          <Text style={styles.headline}>När får{'\n'}du lön?</Text>
-          <Text style={styles.body}>
-            Vi använder detta för att visa hur mycket du har kvar till
-            nästa löndag. Du kan ändra detta när som helst.
-          </Text>
+          <Text style={styles.step}>{t('payday.step')}</Text>
+          <Text style={styles.headline}>{t('payday.headline')}</Text>
+          <Text style={styles.body}>{t('payday.body')}</Text>
         </View>
 
         {/* Common days */}
-        <Text style={styles.sectionLabel}>Vanliga lönedagar</Text>
+        <Text style={styles.sectionLabel}>{t('payday.common_label')}</Text>
         <View style={styles.commonGrid}>
           {COMMON_DAYS.map((day) => (
             <TouchableOpacity
@@ -60,7 +69,7 @@ export default function Payday() {
         </View>
 
         {/* All days picker */}
-        <Text style={styles.sectionLabel}>Eller välj datum</Text>
+        <Text style={styles.sectionLabel}>{t('payday.all_label')}</Text>
         <View style={styles.allDaysGrid}>
           {ALL_DAYS.map((day) => (
             <TouchableOpacity
@@ -87,9 +96,7 @@ export default function Payday() {
           <View style={styles.preview}>
             <Text style={styles.previewEmoji}>📅</Text>
             <Text style={styles.previewText}>
-              Du får lön den{' '}
-              <Text style={styles.previewHighlight}>{selected}:e</Text>
-              {' '}varje månad
+              {t('payday.preview', { day: selected })}
             </Text>
           </View>
         )}
@@ -101,15 +108,15 @@ export default function Payday() {
           activeOpacity={0.85}
           disabled={!selected}
         >
-          <Text style={styles.buttonText}>Klar — visa min översikt →</Text>
+          <Text style={styles.buttonText}>{t('payday.cta')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.skipButton}
-          onPress={() => router.replace('/tabs')}
+          onPress={handleSkip}
           activeOpacity={0.7}
         >
-          <Text style={styles.skipText}>Hoppa över</Text>
+          <Text style={styles.skipText}>{t('payday.skip')}</Text>
         </TouchableOpacity>
 
         <View style={{ height: Spacing.xxl }} />

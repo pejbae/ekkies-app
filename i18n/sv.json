@@ -1,0 +1,104 @@
+{
+  "onboarding": {
+    "eyebrow": "Dina pengar. Äntligen klart.",
+    "headline_1": "Se vad som",
+    "headline_italic": "faktiskt händer",
+    "headline_2": "med dina pengar.",
+    "body": "Ekkies kopplar till din bank och visar dig exakt vad du spenderar — lugnt, tydligt, utan att döma.",
+    "prop_1": "Koppla din bank på under en minut",
+    "prop_2": "Se dina utgifter sorterade automatiskt",
+    "prop_3": "Kvar till lön — alltid på låsskärmen",
+    "cta_connect": "Koppla din bank →",
+    "cta_explore": "Utforska utan bank"
+  },
+  "connect": {
+    "step": "Steg 1 av 2",
+    "headline": "Koppla\ndin bank.",
+    "body": "Vi ansluter säkert via öppen bankstandard (PSD2). Vi ser aldrig ditt lösenord eller kontouppgifter.",
+    "security_note": "Bankuppkopplingen drivs av Tink — samma standard som alla EU-banker använder.",
+    "list_label": "Välj din bank",
+    "skip": "Lägg till bank senare",
+    "back": "← Tillbaka"
+  },
+  "payday": {
+    "step": "Steg 2 av 2",
+    "headline": "När får\ndu lön?",
+    "body": "Vi använder detta för att visa hur mycket du har kvar till nästa löndag. Du kan ändra detta när som helst.",
+    "common_label": "Vanliga lönedagar",
+    "all_label": "Eller välj datum",
+    "preview": "Du får lön den {{day}}:e varje månad",
+    "cta": "Klar — visa min översikt →",
+    "skip": "Hoppa över",
+    "back": "← Tillbaka"
+  },
+  "tabs": {
+    "home": "Hem",
+    "transactions": "Transaktioner",
+    "categories": "Kategorier",
+    "insights": "Insikter",
+    "settings": "Inställningar"
+  },
+  "home": {
+    "greeting": "Hej, {{name}} 👋",
+    "hero_label": "Kvar till lön",
+    "days_remaining_one": "{{count}} dag kvar",
+    "days_remaining_other": "{{count}} dagar kvar",
+    "payday_label": "Lön {{day}}:e",
+    "today_label": "Spenderat idag",
+    "insight_title": "Veckans insikt",
+    "insight_text": "Du har spenderat mest på mat den här månaden. Fortsätt hålla koll!",
+    "this_month": "Den här månaden",
+    "recent": "Senaste",
+    "see_all": "Se alla →"
+  },
+  "transactions": {
+    "title": "Transaktioner",
+    "to_review": "{{count}} att granska",
+    "confirm_hint": "Tryck på ✓ för att bekräfta ett köp"
+  },
+  "categories": {
+    "mat": "Mat & dryck",
+    "transport": "Transport",
+    "noje": "Nöje",
+    "halsa": "Hälsa",
+    "shopping": "Shopping",
+    "hem": "Hem",
+    "prenumerationer": "Prenumerationer",
+    "ovrigt": "Övrigt",
+    "lon": "Lön",
+    "title": "Kategorier",
+    "subtitle": "Den här månaden",
+    "total_label": "Totalt spenderat",
+    "pct_of_total": "{{pct}}% av totalt"
+  },
+  "insights": {
+    "title": "Insikter",
+    "subtitle": "Lugna observationer om dina pengar.\nIngen dömer dig här.",
+    "i1_title": "Mat & dryck",
+    "i1_text": "Du spenderade 18% mer på mat den här veckan jämfört med förra. Mestadels ICA och caféer.",
+    "i2_title": "Bra jobbat!",
+    "i2_text": "Du har hållit dig under din transportbudget tre veckor i rad. Det är 340 kr extra i fickan.",
+    "i3_title": "Prenumerationer",
+    "i3_text": "Du betalar för 4 streamingtjänster totalt. Det är 567 kr/månad. Använder du alla?",
+    "i4_title": "Lönedagseffekten",
+    "i4_text": "Du spenderar i snitt 42% mer den första veckan efter lön. Ganska normalt — men bra att veta."
+  },
+  "settings": {
+    "title": "Inställningar",
+    "language_section": "Språk",
+    "language_sv": "Svenska",
+    "language_en": "English",
+    "payday_section": "Löndag",
+    "payday_value": "{{day}}:e varje månad",
+    "bank_section": "Bank",
+    "bank_connected": "Ansluten",
+    "bank_not_connected": "Ej ansluten",
+    "reconnect": "Koppla om",
+    "connect_bank": "Koppla bank",
+    "app_section": "Om appen",
+    "version": "Version {{version}}"
+  },
+  "common": {
+    "kr": " kr"
+  }
+}

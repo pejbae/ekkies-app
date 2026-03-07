@@ -4,40 +4,44 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors, Typography, Spacing, Radius } from '@/constants/theme';
 import {
   MOCK_TRANSACTIONS,
-  CATEGORY_LABELS,
   CATEGORY_COLORS,
+  getCategoryLabel,
   Transaction,
 } from '@/constants/mockData';
+import { useTranslation } from 'react-i18next';
 
 export default function Transactions() {
+  const { t, i18n } = useTranslation();
   const [transactions, setTransactions] = useState(MOCK_TRANSACTIONS);
 
   const confirm = (id: string) => {
     setTransactions((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, confirmed: true } : t))
+      prev.map((tx) => (tx.id === id ? { ...tx, confirmed: true } : tx))
     );
   };
+
+  const locale = i18n.language === 'en' ? 'en-SE' : 'sv-SE';
 
   // Group by date
   const grouped: { date: string; items: Transaction[] }[] = [];
   transactions
-    .filter((t) => t.amount < 0)
-    .forEach((t) => {
-      const dateKey = new Date(t.date).toLocaleDateString('sv-SE', {
+    .filter((tx) => tx.amount < 0)
+    .forEach((tx) => {
+      const dateKey = new Date(tx.date).toLocaleDateString(locale, {
         weekday: 'long',
         day: 'numeric',
         month: 'long',
       });
       const existing = grouped.find((g) => g.date === dateKey);
       if (existing) {
-        existing.items.push(t);
+        existing.items.push(tx);
       } else {
-        grouped.push({ date: dateKey, items: [t] });
+        grouped.push({ date: dateKey, items: [tx] });
       }
     });
 
   const unconfirmed = transactions.filter(
-    (t) => !t.confirmed && t.amount < 0
+    (tx) => !tx.confirmed && tx.amount < 0
   ).length;
 
   return (
@@ -45,10 +49,10 @@ export default function Transactions() {
 
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.title}>Transaktioner</Text>
+        <Text style={styles.title}>{t('transactions.title')}</Text>
         {unconfirmed > 0 && (
           <View style={styles.badge}>
-            <Text style={styles.badgeText}>{unconfirmed} att granska</Text>
+            <Text style={styles.badgeText}>{t('transactions.to_review', { count: unconfirmed })}</Text>
           </View>
         )}
       </View>
@@ -56,9 +60,7 @@ export default function Transactions() {
       {/* Swipe hint */}
       {unconfirmed > 0 && (
         <View style={styles.hint}>
-          <Text style={styles.hintText}>
-            Tryck på ✓ för att bekräfta ett köp
-          </Text>
+          <Text style={styles.hintText}>{t('transactions.confirm_hint')}</Text>
         </View>
       )}
 
@@ -85,29 +87,30 @@ export default function Transactions() {
 }
 
 function TransactionRow({
-  transaction: t,
+  transaction: tx,
   onConfirm,
 }: {
   transaction: Transaction;
   onConfirm: () => void;
 }) {
-  const catColor = CATEGORY_COLORS[t.category];
+  const { t } = useTranslation();
+  const catColor = CATEGORY_COLORS[tx.category];
 
   return (
-    <View style={[styles.txRow, t.confirmed && styles.txRowConfirmed]}>
+    <View style={[styles.txRow, tx.confirmed && styles.txRowConfirmed]}>
       {/* Icon */}
       <View style={[styles.txIcon, { borderColor: catColor + '40' }]}>
-        <Text style={styles.txEmoji}>{t.emoji}</Text>
+        <Text style={styles.txEmoji}>{tx.emoji}</Text>
       </View>
 
       {/* Info */}
       <View style={styles.txInfo}>
-        <Text style={styles.txMerchant}>{t.merchant}</Text>
+        <Text style={styles.txMerchant}>{tx.merchant}</Text>
         <View style={styles.txMeta}>
           <View style={[styles.catPill, { backgroundColor: catColor + '20' }]}>
             <View style={[styles.catDot, { backgroundColor: catColor }]} />
             <Text style={[styles.catLabel, { color: catColor }]}>
-              {CATEGORY_LABELS[t.category]}
+              {getCategoryLabel(tx.category, t)}
             </Text>
           </View>
         </View>
@@ -116,9 +119,9 @@ function TransactionRow({
       {/* Amount + confirm */}
       <View style={styles.txRight}>
         <Text style={styles.txAmount}>
-          -{Math.abs(t.amount).toLocaleString('sv-SE')} kr
+          -{Math.abs(tx.amount).toLocaleString('sv-SE')} kr
         </Text>
-        {!t.confirmed ? (
+        {!tx.confirmed ? (
           <TouchableOpacity
             style={styles.confirmBtn}
             onPress={onConfirm}

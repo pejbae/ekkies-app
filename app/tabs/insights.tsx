@@ -1,52 +1,53 @@
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors, Typography, Spacing, Radius } from '@/constants/theme';
-
-const INSIGHTS = [
-  {
-    id: '1',
-    type: 'observation',
-    title: 'Mat & dryck',
-    text: 'Du spenderade 18% mer på mat den här veckan jämfört med förra. Mestadels ICA och caféer.',
-    emoji: '🛒',
-    color: Colors.green,
-  },
-  {
-    id: '2',
-    type: 'celebration',
-    title: 'Bra jobbat!',
-    text: 'Du har hållit dig under din transportbudget tre veckor i rad. Det är 340 kr extra i fickan.',
-    emoji: '🎉',
-    color: Colors.gold,
-  },
-  {
-    id: '3',
-    type: 'observation',
-    title: 'Prenumerationer',
-    text: 'Du betalar för 4 streamingtjänster totalt. Det är 567 kr/månad. Använder du alla?',
-    emoji: '📺',
-    color: Colors.muted,
-  },
-  {
-    id: '4',
-    type: 'observation',
-    title: 'Lönedagseffekten',
-    text: 'Du spenderar i snitt 42% mer den första veckan efter lön. Ganska normalt — men bra att veta.',
-    emoji: '💰',
-    color: Colors.green,
-  },
-];
+import { useTranslation } from 'react-i18next';
 
 export default function Insights() {
+  const { t } = useTranslation();
+
+  const INSIGHTS = [
+    {
+      id: '1',
+      type: 'observation',
+      title: t('insights.i1_title'),
+      text: t('insights.i1_text'),
+      emoji: '🛒',
+      color: Colors.green,
+    },
+    {
+      id: '2',
+      type: 'celebration',
+      title: t('insights.i2_title'),
+      text: t('insights.i2_text'),
+      emoji: '🎉',
+      color: Colors.gold,
+    },
+    {
+      id: '3',
+      type: 'observation',
+      title: t('insights.i3_title'),
+      text: t('insights.i3_text'),
+      emoji: '📺',
+      color: Colors.muted,
+    },
+    {
+      id: '4',
+      type: 'observation',
+      title: t('insights.i4_title'),
+      text: t('insights.i4_text'),
+      emoji: '💰',
+      color: Colors.green,
+    },
+  ];
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
 
         <View style={styles.header}>
-          <Text style={styles.title}>Insikter</Text>
-          <Text style={styles.subtitle}>
-            Lugna observationer om dina pengar.{'\n'}Ingen dömer dig här.
-          </Text>
+          <Text style={styles.title}>{t('insights.title')}</Text>
+          <Text style={styles.subtitle}>{t('insights.subtitle')}</Text>
         </View>
 
         <View style={styles.cards}>

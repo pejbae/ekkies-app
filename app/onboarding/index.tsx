@@ -1,11 +1,19 @@
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors, Typography, Spacing, Radius } from '@/constants/theme';
-
-const { height } = Dimensions.get('window');
+import { useTranslation } from 'react-i18next';
+import { useApp } from '@/context/AppContext';
 
 export default function Onboarding() {
+  const { t } = useTranslation();
+  const { completeOnboarding } = useApp();
+
+  const handleExplore = async () => {
+    await completeOnboarding();
+    router.replace('/tabs');
+  };
+
   return (
     <SafeAreaView style={styles.container}>
 
@@ -20,25 +28,22 @@ export default function Onboarding() {
 
       {/* Main content */}
       <View style={styles.content}>
-        <Text style={styles.eyebrow}>Dina pengar. Äntligen klart.</Text>
+        <Text style={styles.eyebrow}>{t('onboarding.eyebrow')}</Text>
 
         <Text style={styles.headline}>
-          Se vad som{'\n'}
-          <Text style={styles.headlineItalic}>faktiskt händer</Text>
-          {'\n'}med dina pengar.
+          {t('onboarding.headline_1')}{'\n'}
+          <Text style={styles.headlineItalic}>{t('onboarding.headline_italic')}</Text>
+          {'\n'}{t('onboarding.headline_2')}
         </Text>
 
-        <Text style={styles.body}>
-          Ekkies kopplar till din bank och visar dig exakt vad du spenderar —
-          lugnt, tydligt, utan att döma.
-        </Text>
+        <Text style={styles.body}>{t('onboarding.body')}</Text>
       </View>
 
       {/* Three value props */}
       <View style={styles.props}>
-        <ValueProp emoji="🔗" text="Koppla din bank på under en minut" />
-        <ValueProp emoji="📊" text="Se dina utgifter sorterade automatiskt" />
-        <ValueProp emoji="📱" text="Kvar till lön — alltid på låsskärmen" />
+        <ValueProp emoji="🔗" text={t('onboarding.prop_1')} />
+        <ValueProp emoji="📊" text={t('onboarding.prop_2')} />
+        <ValueProp emoji="📱" text={t('onboarding.prop_3')} />
       </View>
 
       {/* CTA */}
@@ -48,14 +53,14 @@ export default function Onboarding() {
           onPress={() => router.push('/onboarding/connect')}
           activeOpacity={0.85}
         >
-          <Text style={styles.buttonText}>Koppla din bank →</Text>
+          <Text style={styles.buttonText}>{t('onboarding.cta_connect')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() => router.push('/tabs')}
+          onPress={handleExplore}
           activeOpacity={0.7}
         >
-          <Text style={styles.skipText}>Utforska utan bank</Text>
+          <Text style={styles.skipText}>{t('onboarding.cta_explore')}</Text>
         </TouchableOpacity>
       </View>
 

@@ -1,0 +1,104 @@
+{
+  "onboarding": {
+    "eyebrow": "Your money. Finally clear.",
+    "headline_1": "See what's",
+    "headline_italic": "actually happening",
+    "headline_2": "with your money.",
+    "body": "Ekkies connects to your bank and shows you exactly what you spend — calm, clear, without judgment.",
+    "prop_1": "Connect your bank in under a minute",
+    "prop_2": "See your spending sorted automatically",
+    "prop_3": "Money until payday — always on your lock screen",
+    "cta_connect": "Connect your bank →",
+    "cta_explore": "Explore without bank"
+  },
+  "connect": {
+    "step": "Step 1 of 2",
+    "headline": "Connect\nyour bank.",
+    "body": "We connect securely via open banking standard (PSD2). We never see your password or account details.",
+    "security_note": "Bank connection powered by Tink — the same standard all EU banks use.",
+    "list_label": "Choose your bank",
+    "skip": "Add bank later",
+    "back": "← Back"
+  },
+  "payday": {
+    "step": "Step 2 of 2",
+    "headline": "When do\nyou get paid?",
+    "body": "We use this to show how much you have left until your next payday. You can change this at any time.",
+    "common_label": "Common paydays",
+    "all_label": "Or choose a date",
+    "preview": "You get paid on the {{day}}th every month",
+    "cta": "Done — show my overview →",
+    "skip": "Skip",
+    "back": "← Back"
+  },
+  "tabs": {
+    "home": "Home",
+    "transactions": "Transactions",
+    "categories": "Categories",
+    "insights": "Insights",
+    "settings": "Settings"
+  },
+  "home": {
+    "greeting": "Hey, {{name}} 👋",
+    "hero_label": "Left until payday",
+    "days_remaining_one": "{{count}} day left",
+    "days_remaining_other": "{{count}} days left",
+    "payday_label": "Payday {{day}}th",
+    "today_label": "Spent today",
+    "insight_title": "Weekly insight",
+    "insight_text": "You've spent the most on food this month. Keep an eye on it!",
+    "this_month": "This month",
+    "recent": "Recent",
+    "see_all": "See all →"
+  },
+  "transactions": {
+    "title": "Transactions",
+    "to_review": "{{count}} to review",
+    "confirm_hint": "Tap ✓ to confirm a purchase"
+  },
+  "categories": {
+    "mat": "Food & drinks",
+    "transport": "Transport",
+    "noje": "Entertainment",
+    "halsa": "Health",
+    "shopping": "Shopping",
+    "hem": "Home",
+    "prenumerationer": "Subscriptions",
+    "ovrigt": "Other",
+    "lon": "Salary",
+    "title": "Categories",
+    "subtitle": "This month",
+    "total_label": "Total spent",
+    "pct_of_total": "{{pct}}% of total"
+  },
+  "insights": {
+    "title": "Insights",
+    "subtitle": "Calm observations about your money.\nNo judgment here.",
+    "i1_title": "Food & drinks",
+    "i1_text": "You spent 18% more on food this week compared to last. Mostly grocery and cafés.",
+    "i2_title": "Well done!",
+    "i2_text": "You've stayed under your transport budget three weeks in a row. That's 340 kr extra in your pocket.",
+    "i3_title": "Subscriptions",
+    "i3_text": "You're paying for 4 streaming services. That's 567 kr/month. Are you using all of them?",
+    "i4_title": "The payday effect",
+    "i4_text": "You spend on average 42% more in the first week after payday. Pretty normal — but good to know."
+  },
+  "settings": {
+    "title": "Settings",
+    "language_section": "Language",
+    "language_sv": "Svenska",
+    "language_en": "English",
+    "payday_section": "Payday",
+    "payday_value": "{{day}}th every month",
+    "bank_section": "Bank",
+    "bank_connected": "Connected",
+    "bank_not_connected": "Not connected",
+    "reconnect": "Reconnect",
+    "connect_bank": "Connect bank",
+    "app_section": "About",
+    "version": "Version {{version}}"
+  },
+  "common": {
+    "kr": " kr"
+  }
+}

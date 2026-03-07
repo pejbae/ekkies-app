@@ -23,17 +23,13 @@ export type Category =
   | 'ovrigt'
   | 'lon';
 
-export const CATEGORY_LABELS: Record<Category, string> = {
-  mat: 'Mat & dryck',
-  transport: 'Transport',
-  noje: 'Nöje',
-  halsa: 'Hälsa',
-  shopping: 'Shopping',
-  hem: 'Hem',
-  prenumerationer: 'Prenumerationer',
-  ovrigt: 'Övrigt',
-  lon: 'Lön',
-};
+// Use getCategoryLabel(cat, t) instead of a static label map — supports i18n.
+export function getCategoryLabel(
+  category: string,
+  t: (key: string) => string
+): string {
+  return t(`categories.${category}`);
+}
 
 export const CATEGORY_COLORS: Record<Category, string> = {
   mat: '#4CAF72',
